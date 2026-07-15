@@ -11,7 +11,7 @@ import {
 import { dayTaskLabelFromSettings } from '../lib/taskSettings'
 import { formatDisplayDate } from '../lib/dates'
 import { getFailMessage } from '../lib/rules'
-import './TodayPage.css'
+import { btnPrimary, cx, mutedText, textLink } from '../lib/ui'
 
 export function TodayPage() {
   const {
@@ -38,22 +38,32 @@ export function TodayPage() {
 
   if (loading) {
     return (
-      <section className="welcome">
-        <p className="welcome-kicker">Syncing</p>
-        <h1>Loading your challenge…</h1>
+      <section className="grid animate-rise gap-[0.85rem] pt-6 motion-reduce:animate-none">
+        <p className="m-0 text-[0.75rem] font-bold uppercase tracking-[0.14em] text-accent-ink">
+          Syncing
+        </p>
+        <h1 className="m-0 font-display text-[clamp(2rem,9vw,2.6rem)] uppercase leading-[0.95] tracking-[0.02em]">
+          Loading your challenge…
+        </h1>
       </section>
     )
   }
 
   if (failedDay !== null) {
     return (
-      <section className="fail-banner">
-        <p className="welcome-kicker">Challenge failed</p>
-        <h1>Day {failedDay} broke your streak.</h1>
-        <p className="welcome-copy">{getFailMessage(failedDay)}</p>
+      <section className="grid animate-rise gap-[0.85rem] pt-6 motion-reduce:animate-none">
+        <p className="m-0 text-[0.75rem] font-bold uppercase tracking-[0.14em] text-accent-ink">
+          Challenge failed
+        </p>
+        <h1 className="m-0 font-display text-[clamp(2rem,9vw,2.6rem)] uppercase leading-[0.95] tracking-[0.02em]">
+          Day {failedDay} broke your streak.
+        </h1>
+        <p className={cx(mutedText, 'max-w-[36ch] leading-normal')}>
+          {getFailMessage(failedDay)}
+        </p>
         <button
           type="button"
-          className="btn-primary"
+          className={btnPrimary}
           onClick={() => {
             acknowledgeAutoFail()
             void startChallenge()
@@ -61,10 +71,10 @@ export function TodayPage() {
         >
           Start Day 1 again
         </button>
-        <Link className="text-link" to="/rules">
+        <Link className={textLink} to="/rules">
           Read the rules
         </Link>
-        <Link className="text-link" to="/progress">
+        <Link className={textLink} to="/progress">
           View progress
         </Link>
       </section>
@@ -74,24 +84,32 @@ export function TodayPage() {
   if (!challenge) {
     const last = state.pastChallenges[0]
     return (
-      <section className="welcome">
-        <p className="welcome-kicker">No active challenge</p>
-        <h1>Start your 75 days.</h1>
-        <p className="welcome-copy">
+      <section className="grid animate-rise gap-[0.85rem] pt-6 motion-reduce:animate-none">
+        <p className="m-0 text-[0.75rem] font-bold uppercase tracking-[0.14em] text-accent-ink">
+          No active challenge
+        </p>
+        <h1 className="m-0 font-display text-[clamp(2rem,9vw,2.6rem)] uppercase leading-[0.95] tracking-[0.02em]">
+          Start your 75 days.
+        </h1>
+        <p className={cx(mutedText, 'max-w-[36ch] leading-normal')}>
           Every day: 2 workouts (1 outdoor), diet, 1 gallon of water, 10 pages
           of reading, and a progress photo. Miss anything and you start over.
         </p>
         {last && (
-          <p className="welcome-history">
+          <p className={cx(mutedText, 'max-w-[36ch] text-[0.9rem] leading-normal')}>
             Last attempt: {last.status}
             {last.startedAt ? ` · started ${formatDisplayDate(last.startedAt)}` : ''}
           </p>
         )}
-        {syncError && <p className="welcome-history">Could not load cloud data.</p>}
-        <button type="button" className="btn-primary" onClick={() => void startChallenge()}>
+        {syncError && (
+          <p className={cx(mutedText, 'max-w-[36ch] text-[0.9rem] leading-normal')}>
+            Could not load cloud data.
+          </p>
+        )}
+        <button type="button" className={btnPrimary} onClick={() => void startChallenge()}>
           Begin Day 1
         </button>
-        <Link className="text-link" to="/rules">
+        <Link className={textLink} to="/rules">
           Read the rules first
         </Link>
       </section>
@@ -100,10 +118,14 @@ export function TodayPage() {
 
   if (currentDayIndex !== null && currentDayIndex > 75) {
     return (
-      <section className="welcome">
-        <p className="welcome-kicker">Past day 75</p>
-        <h1>Finish any remaining logs on Progress, or start fresh.</h1>
-        <button type="button" className="btn-primary" onClick={() => void startChallenge()}>
+      <section className="grid animate-rise gap-[0.85rem] pt-6 motion-reduce:animate-none">
+        <p className="m-0 text-[0.75rem] font-bold uppercase tracking-[0.14em] text-accent-ink">
+          Past day 75
+        </p>
+        <h1 className="m-0 font-display text-[clamp(2rem,9vw,2.6rem)] uppercase leading-[0.95] tracking-[0.02em]">
+          Finish any remaining logs on Progress, or start fresh.
+        </h1>
+        <button type="button" className={btnPrimary} onClick={() => void startChallenge()}>
           Start a new challenge
         </button>
       </section>
@@ -120,34 +142,44 @@ export function TodayPage() {
   )
 
   return (
-    <section className="today">
-      <header className="today-top">
-        <div className="today-top__hero">
+    <section className="grid gap-[1.15rem] min-[900px]:gap-6">
+      <header className="grid gap-[0.85rem] min-[900px]:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.9fr)] min-[900px]:items-stretch min-[900px]:gap-4 min-[1100px]:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.85fr)]">
+        <div>
           <StreakHeader
             dayIndex={dayIndex}
             completedDays={completed}
             challenge={challenge}
             logs={state.dayLogs}
             today={today}
+            fillHeight
           />
         </div>
-        <div className="today-top__status">
-          <DayOverview log={todayLog ?? undefined} taskSettings={state.taskSettings} />
-          <p className={`day-hint ${dayDone ? 'is-good' : ''}`}>
+        <div className="grid gap-[0.45rem] min-[900px]:content-start min-[900px]:gap-[0.65rem] min-[900px]:rounded-2xl min-[900px]:border min-[900px]:border-line min-[900px]:bg-panel min-[900px]:p-4">
+          <DayOverview
+            log={todayLog ?? undefined}
+            taskSettings={state.taskSettings}
+            className="mb-0 min-[900px]:rounded-none min-[900px]:border-0 min-[900px]:bg-transparent min-[900px]:p-0 min-[900px]:shadow-none"
+          />
+          <p
+            className={cx(
+              'm-0 text-[0.92rem] leading-snug text-muted',
+              dayDone && 'font-bold text-done-ink',
+            )}
+          >
             {dayDone
               ? 'All daily tasks complete. You can still edit anything below.'
               : missing.length > 0
                 ? `Still needed: ${missing.map((id) => dayTaskLabelFromSettings(id, state.taskSettings)).join(', ')}.`
                 : 'Keep going.'}
           </p>
-          <p className="day-warning">
+          <p className="m-0 text-[0.82rem] leading-snug text-muted">
             Miss logging before midnight and the day counts as failed when you
             sign back in.
           </p>
         </div>
       </header>
 
-      <div className="today-main">
+      <div>
         <DayLogEditor
           challengeId={challenge.id}
           dayIndex={dayIndex}

@@ -11,7 +11,17 @@ import {
   getTaskTitle,
   isCoreTaskVisible,
 } from '../lib/taskSettings'
-import './SettingsPage.css'
+import {
+  btnDanger,
+  btnPrimary,
+  btnSecondary,
+  cx,
+  fieldInput,
+  fieldLabel,
+  mutedText,
+  pageTitle,
+  panelCard,
+} from '../lib/ui'
 
 const CORE_TASK_IDS: DayTaskId[] = [
   'workout1',
@@ -249,24 +259,24 @@ export function SettingsPage() {
   }
 
   return (
-    <section className="settings">
-      <h1>Settings</h1>
+    <section className="grid gap-[0.85rem] min-[900px]:grid-cols-2 min-[900px]:items-start min-[900px]:gap-4">
+      <h1 className={cx(pageTitle, "mb-4 min-[900px]:col-span-2 min-[900px]:mb-1")}>Settings</h1>
 
-      <div className="settings-card">
-        <h2>Theme</h2>
-        <p className="muted">
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Theme</h2>
+        <p className={mutedText}>
           Switch between light, dark, or follow your device setting.
         </p>
-        <div className="theme-picker" role="group" aria-label="Theme">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Theme">
           {THEME_OPTIONS.map((option) => (
             <button
               key={option.id}
               type="button"
-              className={`theme-option ${theme === option.id ? 'is-active' : ''}`}
+              className={cx("inline-flex items-center gap-2 rounded-xl border border-line bg-panel px-3 py-2 text-[0.85rem] font-semibold text-ink transition hover:border-accent/40", theme === option.id && "border-accent bg-accent text-on-accent")}
               onClick={() => setTheme(option.id)}
             >
               <span
-                className={`theme-option__swatch theme-option__swatch--${option.id}`}
+                className={cx("h-4 w-4 rounded-full border border-line", option.id === "light" && "bg-[#f4f7f6]", option.id === "dark" && "bg-[#0e1614]", option.id === "system" && "bg-gradient-to-r from-[#f4f7f6] to-[#0e1614]")}
                 aria-hidden="true"
               />
               {option.label}
@@ -275,26 +285,27 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <div id="daily-tasks" className="settings-card settings-card--wide">
-        <h2>Daily tasks</h2>
-        <p className="muted">
+      <div id="daily-tasks" className={cx(panelCard, "!mb-0 min-[900px]:col-span-2")}>
+        <h2 className="m-0 text-[0.95rem]">Daily tasks</h2>
+        <p className={mutedText}>
           Choose what shows on Today, rename core tasks, and add or delete your
           own. Tap <strong>Edit</strong> on a Today card to jump here.
         </p>
 
-        <div className="task-visibility">
-          <h3>Shown on Today</h3>
-          <p className="muted">
+        <div className="mb-[0.35rem] grid gap-[0.55rem]">
+          <h3 className="m-0 text-[0.9rem]">Shown on Today</h3>
+          <p className={mutedText}>
             Uncheck a task to hide it on Today. Hidden core tasks are not
             required for the day.
           </p>
-          <ul className="task-visibility__list">
+          <ul className="m-0 grid list-none gap-[0.35rem] p-0">
             {CORE_TASK_IDS.map((id) => {
               const shown = isCoreTaskVisible(id, taskSettings)
               return (
                 <li key={id}>
-                  <label className="task-visibility__item">
+                  <label className="flex cursor-pointer items-center gap-[0.55rem] rounded-[0.65rem] border border-line bg-bg/65 px-[0.65rem] py-[0.55rem] text-[0.9rem] font-semibold">
                     <input
+                      className="h-4 w-4 shrink-0 accent-accent"
                       type="checkbox"
                       checked={shown}
                       disabled={busy}
@@ -309,8 +320,9 @@ export function SettingsPage() {
             })}
             {taskSettings.customTasks.map((task) => (
               <li key={task.id}>
-                <label className="task-visibility__item">
+                <label className="flex cursor-pointer items-center gap-[0.55rem] rounded-[0.65rem] border border-line bg-bg/65 px-[0.65rem] py-[0.55rem] text-[0.9rem] font-semibold">
                   <input
+                      className="h-4 w-4 shrink-0 accent-accent"
                     type="checkbox"
                     checked={task.visible !== false}
                     disabled={busy}
@@ -325,12 +337,13 @@ export function SettingsPage() {
           </ul>
         </div>
 
-        <div className="task-goals">
-          <h3>Goals</h3>
-          <div className="task-goals__grid">
-            <label className="field">
-              <span>Workout minutes</span>
+        <div className="grid gap-[0.65rem]">
+          <h3 className="m-0 text-[0.9rem]">Goals</h3>
+          <div className="grid gap-[0.65rem] min-[640px]:grid-cols-3">
+            <label className="grid gap-[0.35rem]">
+              <span className={fieldLabel}>Workout minutes</span>
               <input
+                className={fieldInput}
                 type="number"
                 min={1}
                 max={600}
@@ -343,9 +356,10 @@ export function SettingsPage() {
                 }
               />
             </label>
-            <label className="field">
-              <span>Water goal (oz)</span>
+            <label className="grid gap-[0.35rem]">
+              <span className={fieldLabel}>Water goal (oz)</span>
               <input
+                className={fieldInput}
                 type="number"
                 min={1}
                 max={512}
@@ -358,9 +372,10 @@ export function SettingsPage() {
                 }
               />
             </label>
-            <label className="field">
-              <span>Reading pages</span>
+            <label className="grid gap-[0.35rem]">
+              <span className={fieldLabel}>Reading pages</span>
               <input
+                className={fieldInput}
                 type="number"
                 min={1}
                 max={500}
@@ -376,15 +391,16 @@ export function SettingsPage() {
           </div>
         </div>
 
-        <ul className="task-config-list">
+        <ul className="mt-3 grid list-none gap-3 p-0">
           {CORE_TASK_IDS.map((id) => (
-            <li key={id} id={`task-${id}`} className="task-config-list__item">
-              <div className="task-config-list__head">
+            <li key={id} id={`task-${id}`} className="grid gap-[0.55rem] rounded-[0.85rem] border border-line bg-bg/65 p-[0.85rem]">
+              <div className="text-[0.92rem]">
                 <strong>{getTaskTitle(id, taskSettings)}</strong>
               </div>
-              <label className="field">
-                <span>Title</span>
+              <label className="grid gap-[0.35rem]">
+                <span className={fieldLabel}>Title</span>
                 <input
+                className={fieldInput}
                   type="text"
                   value={coreDrafts[id].title}
                   disabled={busy}
@@ -396,9 +412,10 @@ export function SettingsPage() {
                   }
                 />
               </label>
-              <label className="field">
-                <span>Subtitle</span>
+              <label className="grid gap-[0.35rem]">
+                <span className={fieldLabel}>Subtitle</span>
                 <input
+                className={fieldInput}
                   type="text"
                   value={coreDrafts[id].subtitle}
                   disabled={busy}
@@ -410,10 +427,10 @@ export function SettingsPage() {
                   }
                 />
               </label>
-              <div className="pref-form__actions">
+              <div className="flex flex-wrap gap-[0.45rem]">
                 <button
                   type="button"
-                  className="btn-primary"
+                  className={cx(btnPrimary, "!w-fit")}
                   disabled={busy}
                   onClick={() => void onSaveCoreTask(id)}
                 >
@@ -421,7 +438,7 @@ export function SettingsPage() {
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className={cx(btnSecondary, "!w-fit")}
                   disabled={busy}
                   onClick={() => onResetCoreTask(id)}
                 >
@@ -432,19 +449,20 @@ export function SettingsPage() {
           ))}
         </ul>
 
-        <div className="task-custom">
-          <h3>Your personal tasks</h3>
-          <p className="muted">
+        <div className="mt-4 grid gap-[0.65rem] border-t border-line pt-4">
+          <h3 className="m-0 text-[0.9rem]">Your personal tasks</h3>
+          <p className={mutedText}>
             Add or delete extras for Today. Use the checkboxes above to choose
             which ones appear. These count on the progress ring, not official
             fail rules.
           </p>
-          <ul className="pref-list">
+          <ul className="m-0 grid list-none gap-[0.55rem] p-0">
             {taskSettings.customTasks.map((task) => (
-              <li key={task.id} id={`task-${task.id}`} className="pref-list__item">
+              <li key={task.id} id={`task-${task.id}`} className="grid gap-[0.55rem] rounded-xl border border-line bg-bg px-[0.85rem] py-3">
                 {editingCustomId === task.id ? (
-                  <div className="pref-form">
+                  <div className="grid gap-[0.55rem]">
                     <input
+                className={fieldInput}
                       type="text"
                       value={customEditDraft.title}
                       disabled={busy}
@@ -457,6 +475,7 @@ export function SettingsPage() {
                       placeholder="Task name"
                     />
                     <input
+                className={fieldInput}
                       type="text"
                       value={customEditDraft.subtitle}
                       disabled={busy}
@@ -468,10 +487,10 @@ export function SettingsPage() {
                       }
                       placeholder="Short description (optional)"
                     />
-                    <div className="pref-form__actions">
+                    <div className="flex flex-wrap gap-[0.45rem]">
                       <button
                         type="button"
-                        className="btn-primary"
+                        className={cx(btnPrimary, "!w-fit")}
                         disabled={busy}
                         onClick={() => void onSaveCustomTask()}
                       >
@@ -479,7 +498,7 @@ export function SettingsPage() {
                       </button>
                       <button
                         type="button"
-                        className="btn-secondary"
+                        className={cx(btnSecondary, "!w-fit")}
                         disabled={busy}
                         onClick={() => setEditingCustomId(null)}
                       >
@@ -489,17 +508,17 @@ export function SettingsPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="pref-list__copy">
-                      <strong>{task.title}</strong>
-                      <span>
+                    <div className="grid gap-[0.15rem]">
+                      <strong className="text-[0.95rem]">{task.title}</strong>
+                      <span className="text-[0.82rem] capitalize text-muted">
                         {task.subtitle || 'Personal daily task'}
                         {task.visible === false ? ' · hidden' : ''}
                       </span>
                     </div>
-                    <div className="pref-list__actions">
+                    <div className="flex flex-wrap gap-[0.45rem]">
                       <button
                         type="button"
-                        className="btn-secondary"
+                        className={cx(btnSecondary, "!w-fit")}
                         disabled={busy}
                         onClick={() =>
                           void setCustomTaskVisible(
@@ -512,7 +531,7 @@ export function SettingsPage() {
                       </button>
                       <button
                         type="button"
-                        className="btn-secondary"
+                        className={cx(btnSecondary, "!w-fit")}
                         disabled={busy}
                         onClick={() => {
                           setEditingCustomId(task.id)
@@ -526,7 +545,7 @@ export function SettingsPage() {
                       </button>
                       <button
                         type="button"
-                        className="btn-secondary"
+                        className={cx(btnSecondary, "!w-fit")}
                         disabled={busy}
                         onClick={() => {
                           if (
@@ -546,9 +565,10 @@ export function SettingsPage() {
               </li>
             ))}
           </ul>
-          <div className="pref-form">
-            <h4>Add a personal task</h4>
+          <div className="grid gap-[0.55rem]">
+            <h4 className="m-0 text-[0.9rem]">Add a personal task</h4>
             <input
+                className={fieldInput}
               type="text"
               value={customDraft.title}
               disabled={busy}
@@ -558,6 +578,7 @@ export function SettingsPage() {
               placeholder="e.g. Meditate 10 min"
             />
             <input
+                className={fieldInput}
               type="text"
               value={customDraft.subtitle}
               disabled={busy}
@@ -571,7 +592,7 @@ export function SettingsPage() {
             />
             <button
               type="button"
-              className="btn-primary"
+              className={cx(btnPrimary, "!w-fit")}
               disabled={busy}
               onClick={() => void onAddCustomTask()}
             >
@@ -580,22 +601,23 @@ export function SettingsPage() {
           </div>
         </div>
 
-        {taskMessage && <p className="reminder-status">{taskMessage}</p>}
+        {taskMessage && <p className="m-0 text-[0.9rem] leading-snug text-accent-ink">{taskMessage}</p>}
       </div>
 
-      <div id="my-workouts" className="settings-card settings-card--wide">
-        <h2>My workouts</h2>
-        <p className="muted">
+      <div id="my-workouts" className={cx(panelCard, "!mb-0 min-[900px]:col-span-2")}>
+        <h2 className="m-0 text-[0.95rem]">My workouts</h2>
+        <p className={mutedText}>
           Save the workouts you do most. On Today, tap one or more to fill
           indoor / outdoor, names, and total duration — edit anytime here.
         </p>
 
-        <ul className="pref-list">
+        <ul className="m-0 grid list-none gap-[0.55rem] p-0">
           {workoutPreferences.map((pref) => (
-            <li key={pref.id} className="pref-list__item">
+            <li key={pref.id} className="grid gap-[0.55rem] rounded-xl border border-line bg-bg px-[0.85rem] py-3">
               {editingId === pref.id ? (
-                <div className="pref-form">
+                <div className="grid gap-[0.55rem]">
                   <input
+                className={fieldInput}
                     type="text"
                     value={editDraft.name}
                     disabled={busy}
@@ -607,8 +629,9 @@ export function SettingsPage() {
                     }
                     placeholder="Workout name"
                   />
-                  <div className="pref-form__row">
+                  <div className="grid grid-cols-[1fr_5.5rem] gap-2">
                     <select
+                    className={fieldInput}
                       value={editDraft.location}
                       disabled={busy}
                       onChange={(e) =>
@@ -622,6 +645,7 @@ export function SettingsPage() {
                       <option value="outdoor">Outdoor</option>
                     </select>
                     <input
+                className={fieldInput}
                       type="number"
                       min={1}
                       max={600}
@@ -635,10 +659,10 @@ export function SettingsPage() {
                       }
                     />
                   </div>
-                  <div className="pref-form__actions">
+                  <div className="flex flex-wrap gap-[0.45rem]">
                     <button
                       type="button"
-                      className="btn-primary"
+                      className={cx(btnPrimary, "!w-fit")}
                       disabled={busy}
                       onClick={() => void onSaveEdit()}
                     >
@@ -646,7 +670,7 @@ export function SettingsPage() {
                     </button>
                     <button
                       type="button"
-                      className="btn-secondary"
+                      className={cx(btnSecondary, "!w-fit")}
                       disabled={busy}
                       onClick={() => setEditingId(null)}
                     >
@@ -656,16 +680,16 @@ export function SettingsPage() {
                 </div>
               ) : (
                 <>
-                  <div className="pref-list__copy">
-                    <strong>{pref.name}</strong>
-                    <span>
+                  <div className="grid gap-[0.15rem]">
+                    <strong className="text-[0.95rem]">{pref.name}</strong>
+                    <span className="text-[0.82rem] capitalize text-muted">
                       {pref.location} · {pref.durationMins} min
                     </span>
                   </div>
-                  <div className="pref-list__actions">
+                  <div className="flex flex-wrap gap-[0.45rem]">
                     <button
                       type="button"
-                      className="btn-secondary"
+                      className={cx(btnSecondary, "!w-fit")}
                       disabled={busy}
                       onClick={() => startEdit(pref)}
                     >
@@ -673,7 +697,7 @@ export function SettingsPage() {
                     </button>
                     <button
                       type="button"
-                      className="btn-danger"
+                      className={btnDanger}
                       disabled={busy || workoutPreferences.length <= 1}
                       onClick={() => {
                         if (
@@ -694,9 +718,10 @@ export function SettingsPage() {
           ))}
         </ul>
 
-        <div className="pref-form pref-form--add">
-          <h3>Add a workout</h3>
+        <div className="mt-[0.35rem] grid gap-[0.55rem] border-t border-dashed border-line pt-[0.85rem]">
+          <h3 className="m-0 text-[0.9rem]">Add a workout</h3>
           <input
+                className={fieldInput}
             type="text"
             value={draft.name}
             disabled={busy}
@@ -705,8 +730,9 @@ export function SettingsPage() {
               setDraft((prev) => ({ ...prev, name: e.target.value }))
             }
           />
-          <div className="pref-form__row">
+          <div className="grid grid-cols-[1fr_5.5rem] gap-2">
             <select
+                    className={fieldInput}
               value={draft.location}
               disabled={busy}
               onChange={(e) =>
@@ -720,6 +746,7 @@ export function SettingsPage() {
               <option value="outdoor">Outdoor</option>
             </select>
             <input
+                className={fieldInput}
               type="number"
               min={1}
               max={600}
@@ -735,7 +762,7 @@ export function SettingsPage() {
           </div>
           <button
             type="button"
-            className="btn-primary"
+            className={cx(btnPrimary, "!w-fit")}
             disabled={busy}
             onClick={() => void onAddPreference()}
           >
@@ -743,26 +770,26 @@ export function SettingsPage() {
           </button>
         </div>
 
-        {prefMessage && <p className="reminder-status">{prefMessage}</p>}
+        {prefMessage && <p className="m-0 text-[0.9rem] leading-snug text-accent-ink">{prefMessage}</p>}
       </div>
 
-      <div id="my-books" className="settings-card settings-card--wide">
-        <h2>My books</h2>
-        <p className="muted">
+      <div id="my-books" className={cx(panelCard, "!mb-0 min-[900px]:col-span-2")}>
+        <h2 className="m-0 text-[0.95rem]">My books</h2>
+        <p className={mutedText}>
           Saved reading picks — tap one on Today to fill the book and page
           count.
         </p>
-        <ul className="pref-list">
+        <ul className="m-0 grid list-none gap-[0.55rem] p-0">
           {taskSettings.readingPreferences.map((pref) => (
-            <li key={pref.id} className="pref-list__item">
-              <div className="pref-list__copy">
-                <strong>{pref.title}</strong>
-                <span>{pref.defaultPages} pages</span>
+            <li key={pref.id} className="grid gap-[0.55rem] rounded-xl border border-line bg-bg px-[0.85rem] py-3">
+              <div className="grid gap-[0.15rem]">
+                <strong className="text-[0.95rem]">{pref.title}</strong>
+                <span className="text-[0.82rem] text-muted">{pref.defaultPages} pages</span>
               </div>
-              <div className="pref-list__actions">
+              <div className="flex flex-wrap gap-[0.45rem]">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className={cx(btnSecondary, "!w-fit")}
                   disabled={busy}
                   onClick={() => {
                     const title = window.prompt('Book title', pref.title)
@@ -781,7 +808,7 @@ export function SettingsPage() {
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className={cx(btnSecondary, "!w-fit")}
                   disabled={busy}
                   onClick={() => {
                     if (
@@ -797,11 +824,11 @@ export function SettingsPage() {
             </li>
           ))}
         </ul>
-        <div className="pref-form">
-          <h3>Add a book</h3>
+        <div className="grid gap-[0.55rem]">
+          <h3 className="m-0 text-[0.9rem]">Add a book</h3>
           <button
             type="button"
-            className="btn-primary"
+            className={cx(btnPrimary, "!w-fit")}
             disabled={busy}
             onClick={() => {
               const title = window.prompt('Book title')
@@ -817,17 +844,17 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <div className="settings-card">
-        <h2>Account</h2>
-        <p className="muted">Signed in as {user?.email}</p>
-        {syncError && <p className="reminder-status">{syncError}</p>}
-        <div className="settings-account-actions">
-          <Link className="btn-secondary" to="/profile">
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Account</h2>
+        <p className={mutedText}>Signed in as {user?.email}</p>
+        {syncError && <p className="m-0 text-[0.9rem] leading-snug text-accent-ink">{syncError}</p>}
+        <div className="flex flex-wrap gap-2">
+          <Link className={cx(btnSecondary, "!w-fit no-underline")} to="/profile">
             Open profile
           </Link>
           <button
             type="button"
-            className="btn-secondary"
+            className={cx(btnSecondary, "!w-fit")}
             onClick={() => void signOut()}
           >
             Log out
@@ -835,12 +862,12 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <div className="settings-card">
-        <h2>Your data</h2>
-        <p className="muted">
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Your data</h2>
+        <p className={mutedText}>
           Challenge logs, reminders, and photos sync to your Supabase account.
         </p>
-        <ul className="data-list">
+        <ul className="m-0 grid list-disc gap-1.5 pl-[1.1rem] text-[0.92rem] leading-snug text-muted [&_code]:text-[0.82rem]">
           <li>
             <strong>Challenge logs</strong> — Supabase database
           </li>
@@ -851,21 +878,22 @@ export function SettingsPage() {
             <strong>View progress</strong> — Progress tab (tap a day)
           </li>
         </ul>
-        <button type="button" className="btn-secondary" onClick={onExport}>
+        <button type="button" className={cx(btnSecondary, "!w-fit")} onClick={onExport}>
           Export progress JSON
         </button>
       </div>
 
-      <div className="settings-card">
-        <h2>Reminders</h2>
-        <p className="muted">
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Reminders</h2>
+        <p className={mutedText}>
           Hourly notifications while today’s 75 Hard list is incomplete. Best
           with the app installed and notifications allowed.
         </p>
 
-        <label className="toggle-row">
+        <label className="flex items-center justify-between gap-4 font-semibold">
           <span>Hourly reminders</span>
           <input
+            className="h-[1.15rem] w-[1.15rem] accent-accent"
             type="checkbox"
             checked={reminders.enabled}
             disabled={busy}
@@ -875,18 +903,18 @@ export function SettingsPage() {
 
         <button
           type="button"
-          className="btn-secondary"
+          className={cx(btnSecondary, "!w-fit")}
           disabled={busy}
           onClick={() => void onTest()}
         >
           Send test reminder
         </button>
 
-        {reminderMessage && <p className="reminder-status">{reminderMessage}</p>}
+        {reminderMessage && <p className="m-0 text-[0.9rem] leading-snug text-accent-ink">{reminderMessage}</p>}
       </div>
 
-      <div className="settings-card">
-        <h2>Challenge</h2>
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Challenge</h2>
         {challenge ? (
           <>
             <p>
@@ -895,7 +923,7 @@ export function SettingsPage() {
             </p>
             <button
               type="button"
-              className="btn-danger"
+              className={btnDanger}
               onClick={() => {
                 if (
                   window.confirm(
@@ -914,7 +942,7 @@ export function SettingsPage() {
         )}
         <button
           type="button"
-          className="btn-secondary"
+          className={cx(btnSecondary, "!w-fit")}
           onClick={() => {
             if (
               challenge &&
@@ -931,12 +959,12 @@ export function SettingsPage() {
         </button>
       </div>
 
-      <div className="settings-card">
-        <h2>Past attempts</h2>
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Past attempts</h2>
         {state.pastChallenges.length === 0 ? (
-          <p className="muted">None yet.</p>
+          <p className={mutedText}>None yet.</p>
         ) : (
-          <ul className="attempt-list">
+          <ul className="m-0 grid list-none gap-[0.45rem] p-0 text-[0.92rem] text-muted">
             {state.pastChallenges.map((item) => (
               <li key={item.id}>
                 <span>
@@ -948,19 +976,19 @@ export function SettingsPage() {
         )}
       </div>
 
-      <div className="settings-card">
-        <h2>Rules</h2>
-        <p className="muted">
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Rules</h2>
+        <p className={mutedText}>
           Review the official 75 Hard daily requirements and fail conditions.
         </p>
-        <Link className="btn-secondary" to="/rules">
+        <Link className={cx(btnSecondary, "!w-fit no-underline")} to="/rules">
           Open rules
         </Link>
       </div>
 
-      <div className="settings-card">
-        <h2>Install</h2>
-        <p className="muted">
+      <div className={cx(panelCard, "!mb-0")}>
+        <h2 className="m-0 text-[0.95rem]">Install</h2>
+        <p className={mutedText}>
           On your phone, open this app in the browser and use “Add to Home
           Screen” / “Install app” for a full-screen experience.
         </p>

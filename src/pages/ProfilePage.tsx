@@ -7,7 +7,16 @@ import {
 } from '../context/AuthContext'
 import { useChallenge } from '../context/ChallengeContext'
 import { formatDisplayDate } from '../lib/dates'
-import './ProfilePage.css'
+import {
+  btnPrimary,
+  btnSecondary,
+  cx,
+  fieldInput,
+  fieldLabel,
+  mutedText,
+  pageTitle,
+  panelCard,
+} from '../lib/ui'
 
 export function ProfilePage() {
   const { user, signOut, updateProfile } = useAuth()
@@ -42,21 +51,24 @@ export function ProfilePage() {
   }
 
   return (
-    <section className="profile-page">
-      <h1>Profile</h1>
+    <section className="grid gap-[0.9rem] min-[900px]:max-w-[960px] min-[900px]:grid-cols-2 min-[900px]:gap-4">
+      <h1 className={cx(pageTitle, 'min-[900px]:col-span-2')}>Profile</h1>
 
-      <article className="profile-hero">
-        <div className="profile-avatar" aria-hidden="true">
+      <article className="flex items-center gap-4 rounded-2xl bg-hero p-[1.1rem] text-on-accent min-[900px]:col-span-2">
+        <div
+          className="grid h-[4.25rem] w-[4.25rem] shrink-0 place-items-center overflow-hidden rounded-full border-2 border-white/35 bg-black/22 font-display text-[1.5rem] tracking-[0.04em]"
+          aria-hidden="true"
+        >
           {avatarUrl ? (
-            <img src={avatarUrl} alt="" />
+            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
           ) : (
             <span>{initials}</span>
           )}
         </div>
-        <div className="profile-hero__copy">
-          <h2>{displayName}</h2>
-          <p>{user?.email}</p>
-          <p className="profile-hero__meta">
+        <div>
+          <h2 className="m-0 text-[1.25rem]">{displayName}</h2>
+          <p className="mt-[0.2rem] text-[0.92rem] opacity-90">{user?.email}</p>
+          <p className="mt-[0.2rem] text-[0.82rem] opacity-75">
             Joined{' '}
             {user?.created_at
               ? formatDisplayDate(user.created_at.slice(0, 10))
@@ -65,31 +77,42 @@ export function ProfilePage() {
         </div>
       </article>
 
-      <article className="profile-card">
-        <h2>Challenge snapshot</h2>
-        <ul className="profile-stats">
-          <li>
-            <strong>{active ? 'Active' : 'None'}</strong>
-            <span>Current challenge</span>
+      <article className={panelCard}>
+        <h2 className="m-0 text-base">Challenge snapshot</h2>
+        <ul className="m-0 grid list-none grid-cols-3 gap-[0.55rem] p-0">
+          <li className="grid gap-[0.15rem] rounded-xl border border-line bg-bg px-[0.65rem] py-[0.7rem]">
+            <strong className="text-[1.05rem]">{active ? 'Active' : 'None'}</strong>
+            <span className="text-[0.72rem] font-semibold text-muted">
+              Current challenge
+            </span>
           </li>
-          <li>
-            <strong>{pastCount}</strong>
-            <span>Past attempts</span>
+          <li className="grid gap-[0.15rem] rounded-xl border border-line bg-bg px-[0.65rem] py-[0.7rem]">
+            <strong className="text-[1.05rem]">{pastCount}</strong>
+            <span className="text-[0.72rem] font-semibold text-muted">
+              Past attempts
+            </span>
           </li>
-          <li>
-            <strong>{state.workoutPreferences.length}</strong>
-            <span>Saved workouts</span>
+          <li className="grid gap-[0.15rem] rounded-xl border border-line bg-bg px-[0.65rem] py-[0.7rem]">
+            <strong className="text-[1.05rem]">
+              {state.workoutPreferences.length}
+            </strong>
+            <span className="text-[0.72rem] font-semibold text-muted">
+              Saved workouts
+            </span>
           </li>
         </ul>
       </article>
 
-      <article className="profile-card">
-        <h2>Display name</h2>
-        <p className="muted">Shown in your profile. Syncs with your account.</p>
-        <label className="field">
-          <span>Name</span>
+      <article className={panelCard}>
+        <h2 className="m-0 text-base">Display name</h2>
+        <p className={cx(mutedText, 'text-[0.9rem]')}>
+          Shown in your profile. Syncs with your account.
+        </p>
+        <label className="grid gap-[0.35rem]">
+          <span className={fieldLabel}>Name</span>
           <input
             type="text"
+            className={cx(fieldInput, 'bg-bg px-[0.8rem] py-[0.7rem]')}
             value={name}
             disabled={busy}
             onChange={(e) => setName(e.target.value)}
@@ -97,47 +120,53 @@ export function ProfilePage() {
         </label>
         <button
           type="button"
-          className="btn-primary"
+          className={cx(btnPrimary, '!w-fit')}
           disabled={busy}
           onClick={() => void onSave()}
         >
           Save profile
         </button>
-        {message && <p className="profile-message">{message}</p>}
+        {message && (
+          <p className="m-0 text-[0.9rem] font-semibold text-accent-ink">
+            {message}
+          </p>
+        )}
       </article>
 
-      <article className="profile-card">
-        <h2>My workouts</h2>
-        <p className="muted">
+      <article className={panelCard}>
+        <h2 className="m-0 text-base">My workouts</h2>
+        <p className={cx(mutedText, 'text-[0.9rem]')}>
           Manage the chips on Workout #1 / #2 — add, edit, or remove your usual
           workouts.
         </p>
-        <Link className="btn-secondary" to="/settings#my-workouts">
+        <Link className={cx(btnSecondary, '!w-fit no-underline')} to="/settings#my-workouts">
           Edit workout list
         </Link>
       </article>
 
-      <article className="profile-card">
-        <h2>Daily tasks</h2>
-        <p className="muted">
+      <article className={panelCard}>
+        <h2 className="m-0 text-base">Daily tasks</h2>
+        <p className={cx(mutedText, 'text-[0.9rem]')}>
           Choose which tasks show on Today, rename them, or add and delete
           personal tasks.
         </p>
-        <Link className="btn-secondary" to="/settings#daily-tasks">
+        <Link className={cx(btnSecondary, '!w-fit no-underline')} to="/settings#daily-tasks">
           Customize tasks
         </Link>
       </article>
 
-      <article className="profile-card">
-        <h2>Account</h2>
-        <p className="muted">Signed in with {user?.app_metadata?.provider ?? 'email'}.</p>
-        <div className="profile-actions">
-          <Link className="btn-secondary" to="/settings">
+      <article className={panelCard}>
+        <h2 className="m-0 text-base">Account</h2>
+        <p className={cx(mutedText, 'text-[0.9rem]')}>
+          Signed in with {user?.app_metadata?.provider ?? 'email'}.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Link className={cx(btnSecondary, '!w-fit no-underline')} to="/settings">
             Open settings
           </Link>
           <button
             type="button"
-            className="btn-secondary"
+            className={cx(btnSecondary, '!w-fit')}
             onClick={() => void signOut()}
           >
             Log out

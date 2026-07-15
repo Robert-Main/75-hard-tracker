@@ -17,8 +17,7 @@ import type {
   Workout,
   WorkoutPreference,
 } from '../types'
-import './DayLogEditor.css'
-import './WorkoutCard.css'
+import { cx, doneToggle, doneToggleOn } from '../lib/ui'
 
 interface DayLogEditorProps {
   challengeId: string
@@ -28,6 +27,7 @@ interface DayLogEditorProps {
   taskSettings: TaskSettings
   preferences: WorkoutPreference[]
   disabled?: boolean
+  className?: string
   onUpdateWorkout: (
     which: 'workout1' | 'workout2',
     patch: Partial<Workout>,
@@ -71,6 +71,7 @@ export function DayLogEditor({
   taskSettings,
   preferences,
   disabled = false,
+  className,
   onUpdateWorkout,
   onUpdateDayLog,
   onAddPreference,
@@ -101,12 +102,16 @@ export function DayLogEditor({
       editHref={taskEditHref(task.id)}
       alwaysOpen
     >
-      <div className="task-editor">
+      <div className="grid gap-3">
         <label
-          className={`done-toggle ${resolved.customTasks[task.id] ? 'is-on' : ''}`}
+          className={cx(
+            doneToggle,
+            resolved.customTasks[task.id] && doneToggleOn,
+          )}
         >
           <input
             type="checkbox"
+            className="h-[0.9rem] w-[0.9rem] shrink-0 accent-done disabled:cursor-not-allowed disabled:opacity-55"
             checked={Boolean(resolved.customTasks[task.id])}
             disabled={disabled}
             onChange={(e) => updateCustomTask(task.id, e.target.checked)}
@@ -122,7 +127,13 @@ export function DayLogEditor({
   )
 
   return (
-    <div className={`day-log-editor ${disabled ? 'is-disabled' : ''}`}>
+    <div
+      className={cx(
+        'grid gap-[0.9rem] [&>*]:min-w-0 min-[900px]:grid-cols-2 min-[900px]:items-stretch min-[900px]:gap-4 min-[1100px]:grid-cols-3 min-[1100px]:gap-[1.1rem]',
+        disabled && 'opacity-[0.72]',
+        className,
+      )}
+    >
       {CORE_TASKS.filter((id) => isCoreTaskVisible(id, taskSettings)).map(
         (id) => {
         if (id === 'workout1') {
@@ -208,10 +219,11 @@ export function DayLogEditor({
               editHref={taskEditHref(id)}
               alwaysOpen
             >
-              <div className="task-editor">
-                <label className={`done-toggle ${resolved.diet ? 'is-on' : ''}`}>
+              <div className="grid gap-3">
+                <label className={cx(doneToggle, resolved.diet && doneToggleOn)}>
                   <input
                     type="checkbox"
+                    className="h-[0.9rem] w-[0.9rem] shrink-0 accent-done disabled:cursor-not-allowed disabled:opacity-55"
                     checked={resolved.diet}
                     disabled={disabled}
                     onChange={(e) => onUpdateDayLog({ diet: e.target.checked })}

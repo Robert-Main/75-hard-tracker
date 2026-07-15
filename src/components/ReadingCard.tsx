@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import type { ReadingPreference } from '../types'
-import './ChecklistCard.css'
-import './WorkoutCard.css'
+import {
+  btnCompact,
+  btnGhost,
+  btnPrimary,
+  btnSecondary,
+  cx,
+  fieldInput,
+  fieldLabel,
+  prefChip,
+  prefChipSelected,
+} from '../lib/ui'
 
 interface ReadingCardProps {
   pages: number
@@ -53,15 +62,15 @@ export function ReadingCard({
   }
 
   return (
-    <div className="task-editor">
+    <div className="grid gap-3">
       {preferences.length > 0 && (
-        <div className="pref-pick">
-          <div className="pref-pick__head">
-            <span className="pref-pick__label">Choose a book</span>
+        <div className="grid gap-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className={fieldLabel}>Choose a book</span>
             {canManage && (
               <button
                 type="button"
-                className="pref-pick__manage"
+                className={cx(btnGhost, 'text-[0.78rem]')}
                 disabled={disabled || busy}
                 onClick={() => {
                   setManaging((open) => !open)
@@ -74,7 +83,7 @@ export function ReadingCard({
             )}
           </div>
 
-          <div className="pref-pick__row" role="list">
+          <div className="flex flex-wrap gap-1.5" role="list">
             {preferences.map((pref) => {
               const selected =
                 title.trim().toLowerCase() === pref.title.toLowerCase()
@@ -83,7 +92,7 @@ export function ReadingCard({
                   key={pref.id}
                   type="button"
                   role="listitem"
-                  className={`pref-chip ${selected ? 'is-selected' : ''}`}
+                  className={cx(prefChip, selected && prefChipSelected)}
                   disabled={disabled || managing}
                   onClick={() => applyPreference(pref)}
                   title={`${pref.defaultPages} pages`}
@@ -95,20 +104,25 @@ export function ReadingCard({
           </div>
 
           {managing && canManage && (
-            <div className="pref-manage">
-              <ul className="pref-manage__list">
+            <div className="grid gap-[0.65rem] rounded-xl border border-dashed border-line bg-bg p-3">
+              <ul className="m-0 grid list-none gap-2 p-0">
                 {preferences.map((pref) => (
-                  <li key={pref.id}>
+                  <li
+                    key={pref.id}
+                    className="grid gap-[0.45rem] rounded-[0.65rem] border border-line bg-panel px-[0.65rem] py-[0.55rem]"
+                  >
                     {editId === pref.id ? (
-                      <div className="pref-manage__form">
+                      <div className="grid gap-[0.45rem]">
                         <input
                           type="text"
+                          className={cx(fieldInput, 'bg-bg')}
                           value={editTitle}
                           disabled={busy}
                           onChange={(e) => setEditTitle(e.target.value)}
                         />
                         <input
                           type="number"
+                          className={cx(fieldInput, 'bg-bg')}
                           min={1}
                           max={500}
                           value={editPages}
@@ -117,30 +131,30 @@ export function ReadingCard({
                             setEditPages(Number(e.target.value) || goalPages)
                           }
                         />
-                        <div className="pref-manage__actions">
+                        <div className="flex flex-wrap gap-1.5">
                           <button
                             type="button"
-                            className="btn-primary"
+                            className={cx(btnPrimary, btnCompact)}
                             disabled={busy}
-                          onClick={() => {
-                            if (!onUpdatePreference || !editTitle.trim()) return
-                            setBusy(true)
-                            void Promise.resolve(
-                              onUpdatePreference(editId, {
-                                title: editTitle.trim(),
-                                defaultPages: editPages,
-                              }),
-                            ).finally(() => {
-                              setEditId(null)
-                              setBusy(false)
-                            })
-                          }}
+                            onClick={() => {
+                              if (!onUpdatePreference || !editTitle.trim()) return
+                              setBusy(true)
+                              void Promise.resolve(
+                                onUpdatePreference(editId, {
+                                  title: editTitle.trim(),
+                                  defaultPages: editPages,
+                                }),
+                              ).finally(() => {
+                                setEditId(null)
+                                setBusy(false)
+                              })
+                            }}
                           >
                             Save
                           </button>
                           <button
                             type="button"
-                            className="btn-secondary"
+                            className={cx(btnSecondary, btnCompact)}
                             disabled={busy}
                             onClick={() => setEditId(null)}
                           >
@@ -149,14 +163,14 @@ export function ReadingCard({
                         </div>
                       </div>
                     ) : (
-                      <div className="pref-manage__row-item">
-                        <span>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[0.9rem]">
                           {pref.title} · {pref.defaultPages} pg
                         </span>
-                        <div className="pref-manage__actions">
+                        <div className="flex flex-wrap gap-1.5">
                           <button
                             type="button"
-                            className="btn-secondary"
+                            className={cx(btnSecondary, btnCompact)}
                             disabled={busy}
                             onClick={() => {
                               setEditId(pref.id)
@@ -169,7 +183,7 @@ export function ReadingCard({
                           </button>
                           <button
                             type="button"
-                            className="btn-secondary"
+                            className={cx(btnSecondary, btnCompact)}
                             disabled={busy || preferences.length <= 1}
                             onClick={() => {
                               if (
@@ -196,9 +210,10 @@ export function ReadingCard({
               </ul>
 
               {adding ? (
-                <div className="pref-manage__form">
+                <div className="grid gap-[0.45rem]">
                   <input
                     type="text"
+                    className={cx(fieldInput, 'bg-bg')}
                     placeholder="Book title"
                     value={newTitle}
                     disabled={busy}
@@ -206,6 +221,7 @@ export function ReadingCard({
                   />
                   <input
                     type="number"
+                    className={cx(fieldInput, 'bg-bg')}
                     min={1}
                     max={500}
                     value={newPages}
@@ -214,10 +230,10 @@ export function ReadingCard({
                       setNewPages(Number(e.target.value) || goalPages)
                     }
                   />
-                  <div className="pref-manage__actions">
+                  <div className="flex flex-wrap gap-1.5">
                     <button
                       type="button"
-                      className="btn-primary"
+                      className={cx(btnPrimary, btnCompact)}
                       disabled={busy || !newTitle.trim()}
                       onClick={() => {
                         if (!onAddPreference || !newTitle.trim()) return
@@ -239,7 +255,7 @@ export function ReadingCard({
                     </button>
                     <button
                       type="button"
-                      className="btn-secondary"
+                      className={cx(btnSecondary, btnCompact)}
                       disabled={busy}
                       onClick={() => setAdding(false)}
                     >
@@ -250,7 +266,7 @@ export function ReadingCard({
               ) : (
                 <button
                   type="button"
-                  className="pref-manage__add"
+                  className={cx(btnSecondary, btnCompact)}
                   disabled={busy}
                   onClick={() => {
                     setAdding(true)
@@ -266,10 +282,11 @@ export function ReadingCard({
         </div>
       )}
 
-      <label className="field">
-        <span>Pages read</span>
+      <label className="grid gap-[0.35rem]">
+        <span className={fieldLabel}>Pages read</span>
         <input
           type="number"
+          className={fieldInput}
           min={0}
           max={500}
           value={pages || ''}
@@ -283,10 +300,11 @@ export function ReadingCard({
         />
       </label>
 
-      <label className="field">
-        <span>Book (optional)</span>
+      <label className="grid gap-[0.35rem]">
+        <span className={fieldLabel}>Book (optional)</span>
         <input
           type="text"
+          className={fieldInput}
           value={title}
           placeholder="Title"
           disabled={disabled}
@@ -295,7 +313,7 @@ export function ReadingCard({
       </label>
 
       {pages >= goalPages && (
-        <p className="task-editor__hint">
+        <p className="m-0 text-[0.86rem] font-semibold text-done-ink">
           {goalPages}-page goal reached — you can still edit.
         </p>
       )}

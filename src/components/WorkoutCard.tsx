@@ -4,7 +4,20 @@ import type {
   WorkoutLocation,
   WorkoutPreference,
 } from '../types'
-import './WorkoutCard.css'
+import {
+  btnCompact,
+  btnDanger,
+  btnGhost,
+  btnPrimary,
+  btnSecondary,
+  cx,
+  doneToggle,
+  doneToggleOn,
+  fieldInput,
+  fieldLabel,
+  prefChip,
+  prefChipSelected,
+} from '../lib/ui'
 
 interface WorkoutCardProps {
   workout: Workout
@@ -36,11 +49,15 @@ function namesMatch(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase()
 }
 
+const manageInput = cx(fieldInput, 'bg-bg')
+const locationBtn =
+  'appearance-none cursor-pointer rounded-lg border border-line bg-panel px-[0.55rem] py-1.5 text-[0.82rem] font-semibold text-ink transition disabled:cursor-not-allowed disabled:opacity-55'
+
 export function WorkoutCard({
   workout,
   preferences = [],
   disabled = false,
-  compact = false,
+  compact: _compact = false,
   onChange,
   onAddPreference,
   onUpdatePreference,
@@ -136,12 +153,11 @@ export function WorkoutCard({
   }
 
   return (
-    <div
-      className={`workout-editor ${compact ? 'is-compact' : ''} ${workout.done ? 'is-done' : ''}`}
-    >
-      <label className={`done-toggle ${workout.done ? 'is-on' : ''}`}>
+    <div className="grid gap-3">
+      <label className={cx(doneToggle, workout.done && doneToggleOn)}>
         <input
           type="checkbox"
+          className="h-[0.9rem] w-[0.9rem] shrink-0 accent-done disabled:cursor-not-allowed disabled:opacity-55"
           checked={workout.done}
           disabled={disabled}
           onChange={(e) =>
@@ -158,13 +174,13 @@ export function WorkoutCard({
         </span>
       </label>
 
-      <div className="pref-pick">
-        <div className="pref-pick__head">
-          <span className="pref-pick__label">Choose workouts</span>
+      <div className="grid gap-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <span className={fieldLabel}>Choose workouts</span>
           {canManage && (
             <button
               type="button"
-              className="pref-pick__manage"
+              className={btnGhost + ' text-[0.78rem]'}
               disabled={disabled || busy}
               onClick={() => {
                 setManaging((open) => !open)
@@ -176,11 +192,11 @@ export function WorkoutCard({
             </button>
           )}
         </div>
-        <p className="pref-pick__hint">
+        <p className="m-0 text-[0.75rem] leading-snug text-muted">
           Tap one or more — select everything you did.
         </p>
 
-        <div className="pref-pick__row" role="list">
+        <div className="flex flex-wrap gap-1.5" role="list">
           {preferences.map((pref) => {
             const selected = isPrefSelected(pref)
             return (
@@ -189,7 +205,7 @@ export function WorkoutCard({
                 type="button"
                 role="listitem"
                 aria-pressed={selected}
-                className={`pref-chip ${selected ? 'is-selected' : ''}`}
+                className={cx(prefChip, selected && prefChipSelected)}
                 disabled={disabled || managing}
                 onClick={() => togglePreference(pref)}
                 title={`${pref.location} · ${pref.durationMins} min`}
@@ -201,20 +217,25 @@ export function WorkoutCard({
         </div>
 
         {managing && canManage && (
-          <div className="pref-manage">
-            <ul className="pref-manage__list">
+          <div className="grid gap-[0.65rem] rounded-xl border border-dashed border-line bg-bg p-3">
+            <ul className="m-0 grid list-none gap-2 p-0">
               {preferences.map((pref) => (
-                <li key={pref.id}>
+                <li
+                  key={pref.id}
+                  className="grid gap-[0.45rem] rounded-[0.65rem] border border-line bg-panel px-[0.65rem] py-[0.55rem]"
+                >
                   {editId === pref.id ? (
-                    <div className="pref-manage__form">
+                    <div className="grid gap-[0.45rem]">
                       <input
                         type="text"
+                        className={manageInput}
                         value={editName}
                         disabled={busy}
                         onChange={(e) => setEditName(e.target.value)}
                       />
-                      <div className="pref-manage__row">
+                      <div className="grid grid-cols-[1fr_4.5rem] gap-1.5">
                         <select
+                          className={manageInput}
                           value={editLocation}
                           disabled={busy}
                           onChange={(e) =>
@@ -226,6 +247,7 @@ export function WorkoutCard({
                         </select>
                         <input
                           type="number"
+                          className={manageInput}
                           min={1}
                           max={600}
                           value={editMins}
@@ -235,10 +257,10 @@ export function WorkoutCard({
                           }
                         />
                       </div>
-                      <div className="pref-manage__actions">
+                      <div className="flex flex-wrap gap-1.5">
                         <button
                           type="button"
-                          className="btn-primary"
+                          className={cx(btnPrimary, btnCompact)}
                           disabled={busy}
                           onClick={() => void onSaveEdit()}
                         >
@@ -246,7 +268,7 @@ export function WorkoutCard({
                         </button>
                         <button
                           type="button"
-                          className="btn-secondary"
+                          className={cx(btnSecondary, btnCompact)}
                           disabled={busy}
                           onClick={() => setEditId(null)}
                         >
@@ -256,16 +278,16 @@ export function WorkoutCard({
                     </div>
                   ) : (
                     <>
-                      <div className="pref-manage__copy">
-                        <strong>{pref.name}</strong>
-                        <span>
+                      <div className="grid gap-0.5">
+                        <strong className="text-[0.9rem]">{pref.name}</strong>
+                        <span className="text-[0.78rem] capitalize text-muted">
                           {pref.location} · {pref.durationMins} min
                         </span>
                       </div>
-                      <div className="pref-manage__actions">
+                      <div className="flex flex-wrap gap-1.5">
                         <button
                           type="button"
-                          className="btn-secondary"
+                          className={cx(btnSecondary, btnCompact)}
                           disabled={busy}
                           onClick={() => startEdit(pref)}
                         >
@@ -273,7 +295,7 @@ export function WorkoutCard({
                         </button>
                         <button
                           type="button"
-                          className="btn-danger"
+                          className={cx(btnDanger, btnCompact)}
                           disabled={busy || preferences.length <= 1}
                           onClick={() => {
                             if (
@@ -295,16 +317,18 @@ export function WorkoutCard({
             </ul>
 
             {adding ? (
-              <div className="pref-manage__form">
+              <div className="grid gap-[0.45rem]">
                 <input
                   type="text"
+                  className={manageInput}
                   placeholder="e.g. Trail run"
                   value={newName}
                   disabled={busy}
                   onChange={(e) => setNewName(e.target.value)}
                 />
-                <div className="pref-manage__row">
+                <div className="grid grid-cols-[1fr_4.5rem] gap-1.5">
                   <select
+                    className={manageInput}
                     value={newLocation}
                     disabled={busy}
                     onChange={(e) =>
@@ -316,6 +340,7 @@ export function WorkoutCard({
                   </select>
                   <input
                     type="number"
+                    className={manageInput}
                     min={1}
                     max={600}
                     value={newMins}
@@ -323,10 +348,10 @@ export function WorkoutCard({
                     onChange={(e) => setNewMins(Number(e.target.value) || 45)}
                   />
                 </div>
-                <div className="pref-manage__actions">
+                <div className="flex flex-wrap gap-1.5">
                   <button
                     type="button"
-                    className="btn-primary"
+                    className={cx(btnPrimary, btnCompact)}
                     disabled={busy}
                     onClick={() => void onSaveNew()}
                   >
@@ -334,7 +359,7 @@ export function WorkoutCard({
                   </button>
                   <button
                     type="button"
-                    className="btn-secondary"
+                    className={cx(btnSecondary, btnCompact)}
                     disabled={busy}
                     onClick={() => setAdding(false)}
                   >
@@ -345,7 +370,7 @@ export function WorkoutCard({
             ) : (
               <button
                 type="button"
-                className="btn-secondary pref-manage__add"
+                className={cx(btnSecondary, btnCompact)}
                 disabled={busy}
                 onClick={() => {
                   setAdding(true)
@@ -359,10 +384,18 @@ export function WorkoutCard({
         )}
       </div>
 
-      <div className="location-row" role="group" aria-label="Workout location">
+      <div
+        className="grid max-w-64 grid-cols-2 gap-1.5"
+        role="group"
+        aria-label="Workout location"
+      >
         <button
           type="button"
-          className={workout.location === 'indoor' ? 'is-selected' : ''}
+          className={cx(
+            locationBtn,
+            workout.location === 'indoor' &&
+              'border-accent bg-accent text-on-accent',
+          )}
           disabled={disabled}
           onClick={() => setLocation('indoor')}
         >
@@ -370,7 +403,11 @@ export function WorkoutCard({
         </button>
         <button
           type="button"
-          className={workout.location === 'outdoor' ? 'is-selected' : ''}
+          className={cx(
+            locationBtn,
+            workout.location === 'outdoor' &&
+              'border-accent bg-accent text-on-accent',
+          )}
           disabled={disabled}
           onClick={() => setLocation('outdoor')}
         >
@@ -378,10 +415,11 @@ export function WorkoutCard({
         </button>
       </div>
 
-      <label className="field">
-        <span>What did you do?</span>
+      <label className="grid gap-[0.35rem]">
+        <span className={fieldLabel}>What did you do?</span>
         <input
           type="text"
+          className={fieldInput}
           placeholder="e.g. Run, weights, yoga"
           value={workout.note}
           disabled={disabled}
@@ -389,10 +427,11 @@ export function WorkoutCard({
         />
       </label>
 
-      <label className="field">
-        <span>Duration (mins)</span>
+      <label className="grid gap-[0.35rem]">
+        <span className={fieldLabel}>Duration (mins)</span>
         <input
           type="number"
+          className={fieldInput}
           min={0}
           max={600}
           placeholder="45"

@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 :root,
 [data-theme='light'] {
-  --font-display: 'Bebas Neue', 'Arial Narrow', sans-serif;
-  --font-body: 'Figtree', 'Segoe UI', sans-serif;
-
   --bg-top: #f4f7f6;
   --bg: #eef3f1;
   --bg-deep: #e0e8e5;
@@ -58,184 +58,101 @@
   --sidebar-text: #f5fffb;
 }
 
-:root {
-  font-family: var(--font-body);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: var(--ink);
-  background-color: var(--bg);
-  line-height: 1.4;
-  font-weight: 500;
+@theme inline {
+  --font-display: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  --font-sans: 'Figtree', 'Segoe UI', sans-serif;
+  --color-bg: var(--bg);
+  --color-bg-top: var(--bg-top);
+  --color-bg-deep: var(--bg-deep);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hot: var(--accent-hot);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-on-accent: var(--on-accent);
+  --color-done: var(--done);
+  --color-done-hot: var(--done-hot);
+  --color-done-soft: var(--done-soft);
+  --color-done-ink: var(--done-ink);
+  --color-on-done: var(--on-done);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-sidebar: var(--sidebar-bg);
+  --color-sidebar-text: var(--sidebar-text);
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-  min-height: 100%;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  background: var(--bg);
-  color: var(--ink);
-  transition: background-color 180ms ease, color 180ms ease;
-}
-
-.boot-screen {
-  min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-button,
-input,
-select {
-  font: inherit;
-  color: inherit;
-}
-
-a {
-  color: inherit;
-}
-
-.btn-primary {
-  appearance: none;
-  border: none;
-  width: 100%;
-  padding: 0.9rem 1.25rem;
-  border-radius: 0.75rem;
-  background: var(--accent);
-  color: var(--on-accent);
-  font: inherit;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: transform 160ms ease, background 160ms ease;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--accent-hot);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.btn-primary:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  appearance: none;
-  border: 1px solid var(--line);
-  border-radius: 0.7rem;
-  padding: 0.75rem 0.9rem;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  background: var(--panel);
-  color: var(--ink);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
-}
-
-.btn-secondary:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.text-link {
-  appearance: none;
-  border: none;
-  background: none;
-  padding: 0;
-  color: var(--accent-ink);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.welcome,
-.fail-banner {
-  max-width: 42rem;
-}
-
-.theme-picker {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-
-.theme-option {
-  appearance: none;
-  border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  padding: 0.75rem 0.5rem;
-  background: var(--bg);
-  color: var(--ink);
-  font: inherit;
-  font-weight: 700;
-  font-size: 0.82rem;
-  cursor: pointer;
-  display: grid;
-  gap: 0.35rem;
-  justify-items: center;
-}
-
-.theme-option__swatch {
-  width: 100%;
-  height: 1.35rem;
-  border-radius: 0.4rem;
-  border: 1px solid var(--line);
-}
-
-.theme-option__swatch--light {
-  background: linear-gradient(90deg, #eef3f1 50%, #0f766e 50%);
-}
-
-.theme-option__swatch--dark {
-  background: linear-gradient(90deg, #0e1614 50%, #2dd4bf 50%);
-}
-
-.theme-option__swatch--system {
-  background: linear-gradient(90deg, #eef3f1 50%, #0e1614 50%);
-}
-
-.theme-option.is-active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-ink);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent);
-}
-
-@media (min-width: 900px) {
-  .welcome,
-  .fail-banner {
-    padding-top: 2rem;
-    max-width: 52rem;
+@layer base {
+  html {
+    @apply font-sans font-medium leading-snug text-ink antialiased;
+    text-rendering: optimizeLegibility;
   }
 
-  .welcome-copy,
-  .welcome-history {
-    max-width: 52ch;
+  body {
+    @apply m-0 min-w-80 bg-bg text-ink transition-colors duration-200;
   }
 
-  .btn-primary {
-    width: fit-content;
+  html,
+  body,
+  #root {
+    @apply min-h-full;
+  }
+
+  button,
+  input,
+  select {
+    @apply font-inherit text-inherit;
+  }
+
+  a {
+    @apply text-inherit;
+  }
+}
+
+@utility font-inherit {
+  font: inherit;
+}
+
+@utility bg-hero {
+  background-image: var(--hero-gradient);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulse-today {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@utility animate-rise {
+  animation: rise 420ms ease both;
+}
+
+@utility animate-pulse-today {
+  animation: pulse-today 2.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-pulse-today {
+    animation: none;
   }
 }

@@ -7,7 +7,7 @@ import {
   uploadProgressPhoto,
 } from '../lib/cloud'
 import { fileToCompressedDataUrl } from '../lib/photos'
-import './ChecklistCard.css'
+import { btnSecondary, cx, mutedText } from '../lib/ui'
 
 interface PhotoCardProps {
   challengeId: string
@@ -79,28 +79,36 @@ export function PhotoCard({
   }
 
   return (
-    <div className="task-editor">
+    <div className="grid gap-3">
       {preview ? (
-        <img className="photo-preview" src={preview} alt="Progress photo" />
+        <img
+          className="aspect-[3/4] w-full max-w-44 rounded-[0.65rem] border border-line bg-bg-deep object-cover"
+          src={preview}
+          alt="Progress photo"
+        />
       ) : (
-        <p className="photo-empty">No photo yet — take or upload one.</p>
+        <p className={cx(mutedText, 'text-[0.9rem]')}>
+          No photo yet — take or upload one.
+        </p>
       )}
 
-      <div className="photo-actions">
-        <label>
+      <div className="grid max-w-64 grid-cols-2 gap-1.5">
+        <label className="grid cursor-pointer place-items-center rounded-lg border border-line bg-panel px-[0.45rem] py-1.5 text-[0.82rem] font-semibold">
           Camera
           <input
             type="file"
+            className="hidden"
             accept="image/*"
             capture="environment"
             disabled={disabled || busy}
             onChange={(e) => void onFile(e.target.files?.[0])}
           />
         </label>
-        <label>
+        <label className="grid cursor-pointer place-items-center rounded-lg border border-line bg-panel px-[0.45rem] py-1.5 text-[0.82rem] font-semibold">
           Upload
           <input
             type="file"
+            className="hidden"
             accept="image/*"
             disabled={disabled || busy}
             onChange={(e) => void onFile(e.target.files?.[0])}
@@ -111,7 +119,7 @@ export function PhotoCard({
       {hasPhoto && (
         <button
           type="button"
-          className="btn-secondary"
+          className={cx(btnSecondary, '!w-fit')}
           disabled={disabled || busy}
           onClick={() => void onClear()}
         >
@@ -119,7 +127,7 @@ export function PhotoCard({
         </button>
       )}
 
-      {error && <p className="photo-empty">{error}</p>}
+      {error && <p className={cx(mutedText, 'text-[0.9rem]')}>{error}</p>}
     </div>
   )
 }

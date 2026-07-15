@@ -17,7 +17,7 @@ import {
 import { getDayPhotoPath, getProgressPhotoUrl } from '../lib/cloud'
 import { formatDisplayDate } from '../lib/dates'
 import type { Challenge, DayLog, DayStatus, TaskSettings } from '../types'
-import './ProgressPage.css'
+import { cx, mutedText, pageTitle } from '../lib/ui'
 
 function resolveDayStatus(
   challenge: Challenge,
@@ -101,17 +101,19 @@ export function ProgressPage() {
 
   if (loading) {
     return (
-      <section className="progress-empty">
-        <h1>Loading progress…</h1>
+      <section className="pt-6">
+        <h1 className={pageTitle}>Loading progress…</h1>
       </section>
     )
   }
 
   if (!challenge) {
     return (
-      <section className="progress-empty">
-        <h1>No progress yet</h1>
-        <p>Start a challenge from Today to fill the 75-day grid.</p>
+      <section className="pt-6">
+        <h1 className={pageTitle}>No progress yet</h1>
+        <p className={cx(mutedText, 'mt-2')}>
+          Start a challenge from Today to fill the 75-day grid.
+        </p>
       </section>
     )
   }
@@ -146,8 +148,8 @@ export function ProgressPage() {
   )
 
   return (
-    <section className="progress">
-      <div className="progress-main">
+    <section className="min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_minmax(300px,380px)] min-[900px]:items-start min-[900px]:gap-7">
+      <div>
         <StreakHeader
           dayIndex={Math.min(dayIndex, CHALLENGE_DAYS)}
           completedDays={completed}
@@ -156,7 +158,7 @@ export function ProgressPage() {
           today={today}
         />
 
-        <p className="progress-hint">
+        <p className="mb-[0.85rem] mt-0 text-[0.9rem] leading-snug text-muted">
           Tap any day to review or edit tasks
           {challenge.status === 'active' ? ' for this attempt' : ''}.
           {failedDay !== null
@@ -164,19 +166,29 @@ export function ProgressPage() {
             : ''}
         </p>
 
-        <div className="legend" aria-hidden="true">
-          <span>
-            <i className="swatch swatch-today" /> Today
+        <div
+          className="mb-[0.9rem] flex flex-wrap gap-[0.85rem] text-[0.78rem] font-semibold text-muted"
+          aria-hidden="true"
+        >
+          <span className="inline-flex items-center gap-[0.35rem]">
+            <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-accent not-italic" />{' '}
+            Today
           </span>
-          <span>
-            <i className="swatch swatch-done" /> Done
+          <span className="inline-flex items-center gap-[0.35rem]">
+            <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-done not-italic" />{' '}
+            Done
           </span>
-          <span>
-            <i className="swatch swatch-miss" /> Missed
+          <span className="inline-flex items-center gap-[0.35rem]">
+            <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-[color-mix(in_srgb,var(--danger)_55%,white)] not-italic" />{' '}
+            Missed
           </span>
         </div>
 
-        <div className="day-grid" role="list" aria-label="75 day progress">
+        <div
+          className="grid grid-cols-5 gap-1.5 min-[900px]:grid-cols-10 min-[900px]:gap-[0.45rem] min-[1100px]:grid-cols-[repeat(15,minmax(0,1fr))]"
+          role="list"
+          aria-label="75 day progress"
+        >
           {Array.from({ length: CHALLENGE_DAYS }, (_, i) => {
             const day = i + 1
             const status = resolveDayStatus(
@@ -191,7 +203,10 @@ export function ProgressPage() {
                 key={day}
                 type="button"
                 role="listitem"
-                className={`day-pick ${selectedDay === day ? 'is-selected' : ''}`}
+                className={cx(
+                  'appearance-none cursor-pointer rounded-[0.45rem] border-0 bg-transparent p-0',
+                  selectedDay === day && 'outline outline-2 outline-offset-1 outline-accent',
+                )}
                 onClick={() =>
                   setSelectedDay((prev) => (prev === day ? null : day))
                 }
@@ -203,14 +218,19 @@ export function ProgressPage() {
         </div>
       </div>
 
-      <aside className="progress-detail">
+      <aside
+        className={cx(
+          selectedDay !== null ? 'block' : 'hidden',
+          'min-[900px]:sticky min-[900px]:top-8 min-[900px]:block',
+        )}
+      >
         {selectedDay !== null && selectedDate ? (
-          <article className="day-detail">
-            <header className="day-detail__head">
-              <h2>
+          <article className="mt-4 grid max-h-none gap-[0.85rem] rounded-2xl border border-line bg-panel/92 p-4 min-[900px]:mt-0 min-[900px]:max-h-[calc(100dvh-4rem)] min-[900px]:overflow-auto">
+            <header>
+              <h2 className="m-0 text-[1.05rem]">
                 Day {selectedDay} · {formatDisplayDate(selectedDate)}
               </h2>
-              <p>
+              <p className="mt-1 capitalize text-[0.9rem] text-muted">
                 {selectedStatus} · {taskCounts.done}/{taskCounts.total} tasks
                 {canEdit ? ' · editable' : ''}
               </p>
@@ -224,6 +244,7 @@ export function ProgressPage() {
                 log={selectedLog}
                 taskSettings={state.taskSettings}
                 preferences={state.workoutPreferences}
+                className="min-[900px]:!grid-cols-1"
                 onUpdateWorkout={(which, patch) =>
                   void updateWorkout(which, patch, selectedDay)
                 }
@@ -240,9 +261,9 @@ export function ProgressPage() {
             ) : (
               <>
                 {!selectedLog ? (
-                  <p className="muted">No log saved for this day yet.</p>
+                  <p className={mutedText}>No log saved for this day yet.</p>
                 ) : (
-                  <ul className="day-detail__list">
+                  <ul className="m-0 grid list-disc gap-[0.35rem] pl-[1.1rem] text-[0.92rem] text-ink">
                     <li>
                       Workout 1:{' '}
                       {selectedLog.workout1.done
@@ -284,12 +305,12 @@ export function ProgressPage() {
                 )}
                 {photoUrl && (
                   <img
-                    className="day-detail__photo"
+                    className="max-h-80 w-full rounded-xl border border-line object-cover min-[900px]:max-h-[420px]"
                     src={photoUrl}
                     alt={`Progress photo for day ${selectedDay}`}
                   />
                 )}
-                <p className="muted">
+                <p className={mutedText}>
                   {challenge.status !== 'active'
                     ? 'Past attempts are view-only.'
                     : 'Future days open when you reach them.'}
@@ -298,9 +319,9 @@ export function ProgressPage() {
             )}
           </article>
         ) : (
-          <article className="day-detail day-detail--empty">
-            <h2>Day details</h2>
-            <p className="muted">
+          <article className="mt-4 grid gap-[0.85rem] rounded-2xl border border-line bg-panel/92 p-4 min-[900px]:mt-0">
+            <h2 className="m-0 text-[1.05rem]">Day details</h2>
+            <p className={mutedText}>
               Select a day from the grid to review or edit workouts, diet,
               water, reading, and your progress photo.
             </p>
