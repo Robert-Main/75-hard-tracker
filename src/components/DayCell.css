@@ -1,0 +1,51 @@
+.day-cell {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.day-cell--upcoming {
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.day-cell--today {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+  animation: pulse-today 2.2s ease-in-out infinite;
+}
+
+.day-cell--complete {
+  background: var(--done);
+  color: var(--on-done);
+}
+
+.day-cell--incomplete,
+.day-cell--missed {
+  background: color-mix(in srgb, var(--danger) 18%, var(--panel));
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+
+@keyframes pulse-today {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-cell--today {
+    animation: none;
+  }
+}

@@ -1,0 +1,81 @@
+.hero-card {
+  margin-bottom: 1rem;
+  padding: 1.15rem 1.1rem 1rem;
+  border-radius: 1.1rem;
+  background: var(--hero-gradient);
+  color: var(--on-accent);
+  box-shadow: 0 14px 32px rgba(15, 118, 110, 0.28);
+}
+
+.hero-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hero-card__label {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.hero-card__title {
+  margin: 0.1rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 11vw, 3rem);
+  letter-spacing: 0.03em;
+  line-height: 0.95;
+}
+
+.hero-card__streak {
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  min-width: 4.5rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.hero-card__flame {
+  font-size: 1.1rem;
+}
+
+.hero-card__streak-num {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.hero-card__streak-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.hero-card__bar {
+  margin-top: 1rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+
+.hero-card__bar > span {
+  display: block;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: inherit;
+  transition: width 400ms ease;
+}
+
+.hero-card__meta {
+  margin: 0.55rem 0 0;
+  font-size: 0.82rem;
+  opacity: 0.92;
+}

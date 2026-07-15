@@ -1,0 +1,128 @@
+.task-editor {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.task-editor__hint {
+  margin: 0;
+  color: var(--done-ink);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.water-meter {
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.water-meter > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-hot), var(--accent));
+  border-radius: inherit;
+  transition: width 280ms ease;
+}
+
+.water-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.water-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.45rem;
+}
+
+.water-actions button,
+.photo-actions button {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.45rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.water-actions button:disabled,
+.photo-actions button:disabled,
+.reading-card input:disabled,
+.task-editor input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field input {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.photo-preview {
+  width: 100%;
+  max-width: 11rem;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 0.65rem;
+  border: 1px solid var(--line);
+  background: var(--bg-deep);
+}
+
+.photo-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  max-width: 16rem;
+}
+
+.photo-actions label {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.photo-actions > button {
+  grid-column: 1 / -1;
+}
+
+.photo-actions label input {
+  display: none;
+}
+
+.photo-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
