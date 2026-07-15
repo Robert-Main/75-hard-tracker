@@ -90,16 +90,28 @@
   html {
     @apply font-sans font-medium leading-snug text-ink antialiased;
     text-rendering: optimizeLegibility;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   body {
-    @apply m-0 min-w-80 bg-bg text-ink transition-colors duration-200;
+    @apply m-0 min-w-0 bg-bg text-ink transition-colors duration-200;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   html,
   body,
   #root {
-    @apply min-h-full;
+    @apply min-h-dvh;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #root {
+    isolation: isolate;
   }
 
   button,

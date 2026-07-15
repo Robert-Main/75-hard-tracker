@@ -10,6 +10,9 @@ import { countConsecutiveStreak } from '../lib/rules'
 import { formatDisplayDate } from '../lib/dates'
 import { cx } from '../lib/ui'
 
+/** Desktop / tablet with sidebar — keep high so phones never get side letterboxing. */
+const DESKTOP = 'min-[1024px]'
+
 const NAV_ITEMS: Array<{ to: string; label: string; end?: boolean }> = [
   { to: '/', end: true, label: 'Today' },
   { to: '/progress', label: 'Progress' },
@@ -79,9 +82,17 @@ export function Layout() {
     .toUpperCase()
 
   return (
-    <div className="min-h-dvh min-[900px]:grid min-[900px]:grid-cols-[250px_minmax(0,1fr)] min-[900px]:bg-bg">
+    <div
+      className={cx(
+        'min-h-dvh w-full max-w-[100vw] overflow-x-hidden bg-bg',
+        `${DESKTOP}:grid ${DESKTOP}:grid-cols-[250px_minmax(0,1fr)]`,
+      )}
+    >
       <aside
-        className="sticky top-0 hidden h-dvh flex-col overflow-hidden border-r border-ink/12 bg-sidebar text-sidebar-text min-[900px]:flex"
+        className={cx(
+          'sticky top-0 hidden h-dvh flex-col overflow-hidden border-r border-ink/12 bg-sidebar text-sidebar-text',
+          `${DESKTOP}:flex`,
+        )}
         aria-label="App navigation"
       >
         <div className="bg-hero px-5 pb-[1.35rem] pt-[1.6rem]">
@@ -154,9 +165,20 @@ export function Layout() {
         </button>
       </aside>
 
-      <div className="mx-auto grid min-h-dvh max-w-[480px] grid-rows-[auto_1fr_auto] bg-bg min-[900px]:m-0 min-[900px]:max-w-none min-[900px]:grid-rows-1">
-        <header className="flex items-start justify-between gap-4 px-5 pb-[0.35rem] pt-[1.1rem] min-[900px]:hidden">
-          <div>
+      <div
+        className={cx(
+          'grid w-full min-w-0 max-w-none grid-rows-[auto_1fr_auto] bg-bg',
+          'min-h-dvh',
+          `${DESKTOP}:grid-rows-1`,
+        )}
+      >
+        <header
+          className={cx(
+            'flex w-full items-start justify-between gap-4 px-4 pb-[0.35rem] pt-[1.1rem] sm:px-5',
+            `${DESKTOP}:hidden`,
+          )}
+        >
+          <div className="min-w-0">
             <p className="m-0 font-display text-[clamp(1.8rem,8vw,2.2rem)] uppercase leading-[0.95] tracking-[0.04em] text-ink">
               75 Hard
             </p>
@@ -197,12 +219,21 @@ export function Layout() {
           </div>
         </header>
 
-        <main className="px-5 pb-24 pt-2 min-[900px]:mx-auto min-[900px]:w-full min-[900px]:max-w-[1200px] min-[900px]:px-[clamp(1.5rem,3vw,3rem)] min-[900px]:pb-10 min-[900px]:pt-8 min-[1280px]:max-w-[1280px] min-[1280px]:px-12">
+        <main
+          className={cx(
+            'w-full min-w-0 px-4 pb-24 pt-2 sm:px-5',
+            `${DESKTOP}:mx-auto ${DESKTOP}:max-w-[1200px] ${DESKTOP}:px-[clamp(1.5rem,3vw,3rem)] ${DESKTOP}:pb-10 ${DESKTOP}:pt-8`,
+            'min-[1280px]:max-w-[1280px] min-[1280px]:px-12',
+          )}
+        >
           <Outlet />
         </main>
 
         <PrimaryNav
-          className="sticky bottom-0 grid grid-cols-5 gap-1 border-t border-line bg-panel/92 px-[0.6rem] py-[0.65rem] pb-[calc(0.65rem+env(safe-area-inset-bottom))] backdrop-blur-[12px] min-[900px]:hidden"
+          className={cx(
+            'sticky bottom-0 grid w-full grid-cols-5 gap-1 border-t border-line bg-panel/92 px-[0.6rem] py-[0.65rem] pb-[calc(0.65rem+env(safe-area-inset-bottom))] backdrop-blur-[12px]',
+            `${DESKTOP}:hidden`,
+          )}
           variant="mobile"
         />
       </div>
