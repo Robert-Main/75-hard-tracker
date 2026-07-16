@@ -1,5 +1,6 @@
 import { CHALLENGE_DAYS } from '../lib/challenge'
 import { countConsecutiveStreak } from '../lib/rules'
+import { cx } from '../lib/ui'
 import type { Challenge, DayLog } from '../types'
 
 interface StreakHeaderProps {
@@ -9,6 +10,7 @@ interface StreakHeaderProps {
   logs: DayLog[]
   today: string
   fillHeight?: boolean
+  className?: string
 }
 
 export function StreakHeader({
@@ -18,6 +20,7 @@ export function StreakHeader({
   logs,
   today,
   fillHeight = false,
+  className,
 }: StreakHeaderProps) {
   const day = Math.min(Math.max(dayIndex, 1), CHALLENGE_DAYS)
   const progress = Math.min(completedDays / CHALLENGE_DAYS, 1)
@@ -28,8 +31,14 @@ export function StreakHeader({
     <section
       className={
         fillHeight
-          ? 'mb-0 flex h-full flex-col justify-between rounded-[1.1rem] bg-hero px-[1.1rem] pb-4 pt-[1.15rem] text-on-accent shadow-[0_14px_32px_rgba(15,118,110,0.28)]'
-          : 'mb-4 rounded-[1.1rem] bg-hero px-[1.1rem] pb-4 pt-[1.15rem] text-on-accent shadow-[0_14px_32px_rgba(15,118,110,0.28)]'
+          ? cx(
+              'flex h-full flex-col justify-between rounded-[1.1rem] bg-hero px-[1.1rem] pb-4 pt-[1.15rem] text-on-accent shadow-[0_14px_32px_rgba(15,118,110,0.28)]',
+              className,
+            )
+          : cx(
+              'rounded-[1.1rem] bg-hero px-[1.1rem] pb-4 pt-[1.15rem] text-on-accent shadow-[0_14px_32px_rgba(15,118,110,0.28)]',
+              className ?? 'mb-4',
+            )
       }
     >
       <div className="flex items-start justify-between gap-4">

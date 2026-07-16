@@ -142,8 +142,8 @@ export function TodayPage() {
   )
 
   return (
-    <section className="grid gap-[1.15rem] min-[900px]:gap-6">
-      <header className="grid gap-[0.85rem] min-[900px]:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.9fr)] min-[900px]:items-stretch min-[900px]:gap-4 min-[1100px]:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.85fr)]">
+    <section className="grid gap-[1.15rem] md:gap-6">
+      <header className="grid gap-[0.85rem] md:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.9fr)] md:items-stretch md:gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.85fr)]">
         <div>
           <StreakHeader
             dayIndex={dayIndex}
@@ -154,11 +154,11 @@ export function TodayPage() {
             fillHeight
           />
         </div>
-        <div className="grid gap-[0.45rem] min-[900px]:content-start min-[900px]:gap-[0.65rem] min-[900px]:rounded-2xl min-[900px]:border min-[900px]:border-line min-[900px]:bg-panel min-[900px]:p-4">
+        <div className="grid gap-[0.45rem] md:content-start md:gap-[0.65rem] md:rounded-2xl md:border md:border-line md:bg-panel md:p-4">
           <DayOverview
             log={todayLog ?? undefined}
             taskSettings={state.taskSettings}
-            className="mb-0 min-[900px]:rounded-none min-[900px]:border-0 min-[900px]:bg-transparent min-[900px]:p-0 min-[900px]:shadow-none"
+            className="mb-0 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none"
           />
           <p
             className={cx(

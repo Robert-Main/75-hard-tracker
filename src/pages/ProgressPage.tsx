@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DayCell } from '../components/DayCell'
 import { DayLogEditor } from '../components/DayLogEditor'
 import { StreakHeader } from '../components/StreakHeader'
@@ -61,6 +61,7 @@ export function ProgressPage() {
   const challenge = state.activeChallenge ?? state.pastChallenges[0] ?? null
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const detailRef = useRef<HTMLElement>(null)
 
   const selectedLog =
     challenge && selectedDay !== null
@@ -98,6 +99,12 @@ export function ProgressPage() {
       cancelled = true
     }
   }, [user, challenge, selectedDay, selectedLog?.hasPhoto])
+
+  useEffect(() => {
+    if (selectedDay === null) return
+    if (!window.matchMedia('(max-width: 1023px)').matches) return
+    detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [selectedDay])
 
   if (loading) {
     return (
@@ -148,84 +155,88 @@ export function ProgressPage() {
   )
 
   return (
-    <section className="min-[900px]:grid min-[900px]:grid-cols-[minmax(0,1fr)_minmax(300px,380px)] min-[900px]:items-start min-[900px]:gap-7">
-      <div>
-        <StreakHeader
-          dayIndex={Math.min(dayIndex, CHALLENGE_DAYS)}
-          completedDays={completed}
-          challenge={challenge}
-          logs={state.dayLogs}
-          today={today}
-        />
+    <section className="grid gap-4 lg:gap-7">
+      <StreakHeader
+        dayIndex={Math.min(dayIndex, CHALLENGE_DAYS)}
+        completedDays={completed}
+        challenge={challenge}
+        logs={state.dayLogs}
+        today={today}
+        className="mb-0"
+      />
 
-        <p className="mb-[0.85rem] mt-0 text-[0.9rem] leading-snug text-muted">
-          Tap any day to review or edit tasks
-          {challenge.status === 'active' ? ' for this attempt' : ''}.
-          {failedDay !== null
-            ? ` Day ${failedDay} failed — restart from Today.`
-            : ''}
-        </p>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(300px,400px)] lg:items-start lg:gap-7">
+        <div className="min-w-0">
+          <p className="mb-[0.85rem] mt-0 text-[0.9rem] leading-snug text-muted">
+            Tap any day to review or edit tasks
+            {challenge.status === 'active' ? ' for this attempt' : ''}.
+            {failedDay !== null
+              ? ` Day ${failedDay} failed — restart from Today.`
+              : ''}
+          </p>
 
-        <div
-          className="mb-[0.9rem] flex flex-wrap gap-[0.85rem] text-[0.78rem] font-semibold text-muted"
-          aria-hidden="true"
-        >
-          <span className="inline-flex items-center gap-[0.35rem]">
-            <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-accent not-italic" />{' '}
-            Today
-          </span>
-          <span className="inline-flex items-center gap-[0.35rem]">
-            <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-done not-italic" />{' '}
-            Done
-          </span>
-          <span className="inline-flex items-center gap-[0.35rem]">
-            <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-[color-mix(in_srgb,var(--danger)_55%,white)] not-italic" />{' '}
-            Missed
-          </span>
+          <div
+            className="mb-[0.9rem] flex flex-wrap gap-[0.85rem] text-[0.78rem] font-semibold text-muted"
+            aria-hidden="true"
+          >
+            <span className="inline-flex items-center gap-[0.35rem]">
+              <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-accent not-italic" />{' '}
+              Today
+            </span>
+            <span className="inline-flex items-center gap-[0.35rem]">
+              <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-done not-italic" />{' '}
+              Done
+            </span>
+            <span className="inline-flex items-center gap-[0.35rem]">
+              <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-[color-mix(in_srgb,var(--danger)_55%,white)] not-italic" />{' '}
+              Missed
+            </span>
+          </div>
+
+          <div
+            className="grid grid-cols-5 gap-1.5 sm:grid-cols-7 sm:gap-2 md:grid-cols-10 lg:grid-cols-10 lg:gap-[0.45rem] xl:grid-cols-[repeat(15,minmax(0,1fr))]"
+            role="list"
+            aria-label="75 day progress"
+          >
+            {Array.from({ length: CHALLENGE_DAYS }, (_, i) => {
+              const day = i + 1
+              const status = resolveDayStatus(
+                challenge,
+                state.dayLogs,
+                day,
+                today,
+                state.taskSettings,
+              )
+              return (
+                <button
+                  key={day}
+                  type="button"
+                  role="listitem"
+                  className={cx(
+                    'appearance-none cursor-pointer rounded-[0.45rem] border-0 bg-transparent p-0',
+                    selectedDay === day &&
+                      'outline outline-2 outline-offset-1 outline-accent',
+                  )}
+                  onClick={() =>
+                    setSelectedDay((prev) => (prev === day ? null : day))
+                  }
+                >
+                  <DayCell dayIndex={day} status={status} />
+                </button>
+              )
+            })}
+          </div>
         </div>
 
-        <div
-          className="grid grid-cols-5 gap-1.5 min-[900px]:grid-cols-10 min-[900px]:gap-[0.45rem] min-[1100px]:grid-cols-[repeat(15,minmax(0,1fr))]"
-          role="list"
-          aria-label="75 day progress"
+        <aside
+          ref={detailRef}
+          className={cx(
+            selectedDay !== null ? 'block' : 'hidden',
+            'lg:sticky lg:top-8 lg:block',
+          )}
         >
-          {Array.from({ length: CHALLENGE_DAYS }, (_, i) => {
-            const day = i + 1
-            const status = resolveDayStatus(
-              challenge,
-              state.dayLogs,
-              day,
-              today,
-              state.taskSettings,
-            )
-            return (
-              <button
-                key={day}
-                type="button"
-                role="listitem"
-                className={cx(
-                  'appearance-none cursor-pointer rounded-[0.45rem] border-0 bg-transparent p-0',
-                  selectedDay === day && 'outline outline-2 outline-offset-1 outline-accent',
-                )}
-                onClick={() =>
-                  setSelectedDay((prev) => (prev === day ? null : day))
-                }
-              >
-                <DayCell dayIndex={day} status={status} />
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      <aside
-        className={cx(
-          selectedDay !== null ? 'block' : 'hidden',
-          'min-[900px]:sticky min-[900px]:top-8 min-[900px]:block',
-        )}
-      >
-        {selectedDay !== null && selectedDate ? (
-          <article className="mt-4 grid max-h-none gap-[0.85rem] rounded-2xl border border-line bg-panel/92 p-4 min-[900px]:mt-0 min-[900px]:max-h-[calc(100dvh-4rem)] min-[900px]:overflow-auto">
+          {selectedDay !== null && selectedDate ? (
+            <article className="grid max-h-none gap-[0.85rem] rounded-2xl border border-line bg-panel/92 p-4 lg:max-h-[calc(100dvh-4rem)] lg:overflow-auto">
             <header>
               <h2 className="m-0 text-[1.05rem]">
                 Day {selectedDay} · {formatDisplayDate(selectedDate)}
@@ -244,7 +255,7 @@ export function ProgressPage() {
                 log={selectedLog}
                 taskSettings={state.taskSettings}
                 preferences={state.workoutPreferences}
-                className="min-[900px]:!grid-cols-1"
+                className="lg:!grid-cols-1"
                 onUpdateWorkout={(which, patch) =>
                   void updateWorkout(which, patch, selectedDay)
                 }
@@ -305,7 +316,7 @@ export function ProgressPage() {
                 )}
                 {photoUrl && (
                   <img
-                    className="max-h-80 w-full rounded-xl border border-line object-cover min-[900px]:max-h-[420px]"
+                    className="max-h-80 w-full rounded-xl border border-line object-cover lg:max-h-[420px]"
                     src={photoUrl}
                     alt={`Progress photo for day ${selectedDay}`}
                   />
@@ -319,7 +330,7 @@ export function ProgressPage() {
             )}
           </article>
         ) : (
-          <article className="mt-4 grid gap-[0.85rem] rounded-2xl border border-line bg-panel/92 p-4 min-[900px]:mt-0">
+          <article className="grid gap-[0.85rem] rounded-2xl border border-line bg-panel/92 p-4">
             <h2 className="m-0 text-[1.05rem]">Day details</h2>
             <p className={mutedText}>
               Select a day from the grid to review or edit workouts, diet,
@@ -327,7 +338,8 @@ export function ProgressPage() {
             </p>
           </article>
         )}
-      </aside>
+        </aside>
+      </div>
     </section>
   )
 }
