@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReadingPreference } from '../types'
 import {
   btnCompact,
@@ -30,6 +30,13 @@ interface ReadingCardProps {
   onRemovePreference?: (id: string) => Promise<void> | void
 }
 
+function parsePages(value: string): number {
+  if (value.trim() === '') return 0
+  const n = Number(value)
+  if (!Number.isFinite(n) || n < 0) return 0
+  return Math.min(500, Math.round(n))
+}
+
 export function ReadingCard({
   pages,
   title,
@@ -49,15 +56,61 @@ export function ReadingCard({
   const [editTitle, setEditTitle] = useState('')
   const [editPages, setEditPages] = useState(goalPages)
   const [busy, setBusy] = useState(false)
+  const [pagesDraft, setPagesDraft] = useState(String(pages || ''))
+  const [titleDraft, setTitleDraft] = useState(title)
+  const pagesRef = useRef(pages)
+  const titleRef = useRef(title)
+  const onChangeRef = useRef(onChange)
+  pagesRef.current = pages
+  titleRef.current = title
+  onChangeRef.current = onChange
+
+  useEffect(() => {
+    setPagesDraft(pages > 0 ? String(pages) : '')
+  }, [pages])
+
+  useEffect(() => {
+    setTitleDraft(title)
+  }, [title])
+
+  useEffect(() => {
+    const next = parsePages(pagesDraft)
+    if (next === pagesRef.current) return
+    const timer = window.setTimeout(() => {
+      onChangeRef.current({ readingPages: next })
+    }, 450)
+    return () => window.clearTimeout(timer)
+  }, [pagesDraft])
+
+  useEffect(() => {
+    if (titleDraft === titleRef.current) return
+    const timer = window.setTimeout(() => {
+      onChangeRef.current({ readingTitle: titleDraft })
+    }, 450)
+    return () => window.clearTimeout(timer)
+  }, [titleDraft])
 
   const canManage = Boolean(
     onAddPreference && onUpdatePreference && onRemovePreference,
   )
 
+  const commitPages = (raw: string) => {
+    const next = parsePages(raw)
+    setPagesDraft(next > 0 ? String(next) : '')
+    if (next !== pagesRef.current) onChangeRef.current({ readingPages: next })
+  }
+
+  const commitTitle = (raw: string) => {
+    if (raw !== titleRef.current) onChangeRef.current({ readingTitle: raw })
+  }
+
   const applyPreference = (pref: ReadingPreference) => {
+    const nextPages = Math.max(pages, pref.defaultPages)
+    setPagesDraft(String(nextPages))
+    setTitleDraft(pref.title)
     onChange({
       readingTitle: pref.title,
-      readingPages: Math.max(pages, pref.defaultPages),
+      readingPages: nextPages,
     })
   }
 
@@ -289,14 +342,17 @@ export function ReadingCard({
           className={fieldInput}
           min={0}
           max={500}
-          value={pages || ''}
+          inputMode="numeric"
+          value={pagesDraft}
           placeholder="0"
           disabled={disabled}
-          onChange={(e) =>
-            onChange({
-              readingPages: e.target.value === '' ? 0 : Number(e.target.value),
-            })
-          }
+          onChange={(e) => setPagesDraft(e.target.value)}
+          onBlur={() => commitPages(pagesDraft)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.currentTarget.blur()
+            }
+          }}
         />
       </label>
 
@@ -305,14 +361,15 @@ export function ReadingCard({
         <input
           type="text"
           className={fieldInput}
-          value={title}
+          value={titleDraft}
           placeholder="Title"
           disabled={disabled}
-          onChange={(e) => onChange({ readingTitle: e.target.value })}
+          onChange={(e) => setTitleDraft(e.target.value)}
+          onBlur={() => commitTitle(titleDraft)}
         />
       </label>
 
-      {pages >= goalPages && (
+      {(pages >= goalPages || parsePages(pagesDraft) >= goalPages) && (
         <p className="m-0 text-[0.86rem] font-semibold text-done-ink">
           {goalPages}-page goal reached — you can still edit.
         </p>

@@ -405,6 +405,49 @@ async function uploadLocalPhotos(userId: string, logs: DayLog[]): Promise<void> 
   )
 }
 
+function mergeWorkouts(a: Workout, b: Workout): Workout {
+  const aDone = Boolean(a.done)
+  const bDone = Boolean(b.done)
+  if (bDone && !aDone) return b
+  if (aDone && !bDone) return a
+  return {
+    done: aDone || bDone,
+    location: a.location ?? b.location,
+    note: a.note || b.note,
+    durationMins:
+      a.durationMins != null || b.durationMins != null
+        ? Math.max(a.durationMins ?? 0, b.durationMins ?? 0) || null
+        : null,
+  }
+}
+
+function mergeDayLog(cloud: DayLog, local: DayLog): DayLog {
+  return normalizeDayLog({
+    ...cloud,
+    diet: cloud.diet || local.diet,
+    waterOz: Math.max(cloud.waterOz, local.waterOz),
+    readingPages: Math.max(cloud.readingPages, local.readingPages),
+    readingTitle: cloud.readingTitle || local.readingTitle,
+    hasPhoto: cloud.hasPhoto || local.hasPhoto,
+    workout1: mergeWorkouts(cloud.workout1, local.workout1),
+    workout2: mergeWorkouts(cloud.workout2, local.workout2),
+    customTasks: { ...local.customTasks, ...cloud.customTasks },
+  })
+}
+
+function mergeDayLogs(cloudLogs: DayLog[], localLogs: DayLog[]): DayLog[] {
+  const map = new Map<string, DayLog>()
+  for (const log of cloudLogs) {
+    map.set(`${log.challengeId}:${log.dayIndex}`, log)
+  }
+  for (const log of localLogs) {
+    const key = `${log.challengeId}:${log.dayIndex}`
+    const existing = map.get(key)
+    map.set(key, existing ? mergeDayLog(existing, log) : log)
+  }
+  return [...map.values()]
+}
+
 export async function migrateLocalIfEmpty(
   userId: string,
   local: AppState,
@@ -434,6 +477,35 @@ export async function migrateLocalIfEmpty(
     if (cloudTasksEmpty && localTasksCustom) {
       next = { ...next, taskSettings: localTasks }
     }
+
+    // Prefer the higher progress when local and cloud both have the same day.
+    if (local.dayLogs.length > 0) {
+      const mergedLogs = mergeDayLogs(next.dayLogs, local.dayLogs)
+      next = { ...next, dayLogs: mergedLogs }
+
+      // Push any local-ahead fields back to the cloud so refresh stays consistent.
+      for (const log of mergedLogs) {
+        const cloudLog = cloud.dayLogs.find(
+          (item) =>
+            item.challengeId === log.challengeId &&
+            item.dayIndex === log.dayIndex,
+        )
+        if (
+          !cloudLog ||
+          cloudLog.readingPages < log.readingPages ||
+          cloudLog.waterOz < log.waterOz ||
+          (!cloudLog.diet && log.diet) ||
+          (!cloudLog.hasPhoto && log.hasPhoto) ||
+          (!cloudLog.readingTitle && log.readingTitle)
+        ) {
+          const photoPath = log.hasPhoto
+            ? getDayPhotoPath(userId, log.challengeId, log.dayIndex)
+            : null
+          void upsertDayLog(log, userId, photoPath).catch(() => undefined)
+        }
+      }
+    }
+
     return next
   }
 

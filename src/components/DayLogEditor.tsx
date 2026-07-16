@@ -1,3 +1,4 @@
+import { DietCard } from './DietCard'
 import { PhotoCard } from './PhotoCard'
 import { ReadingCard } from './ReadingCard'
 import { TaskRow } from './TaskRow'
@@ -219,22 +220,11 @@ export function DayLogEditor({
               editHref={taskEditHref(id)}
               alwaysOpen
             >
-              <div className="grid gap-3">
-                <label className={cx(doneToggle, resolved.diet && doneToggleOn)}>
-                  <input
-                    type="checkbox"
-                    className="h-[0.9rem] w-[0.9rem] shrink-0 accent-done disabled:cursor-not-allowed disabled:opacity-55"
-                    checked={resolved.diet}
-                    disabled={disabled}
-                    onChange={(e) => onUpdateDayLog({ diet: e.target.checked })}
-                  />
-                  <span>
-                    {resolved.diet
-                      ? 'Diet followed — tap to undo'
-                      : 'Mark diet followed today'}
-                  </span>
-                </label>
-              </div>
+              <DietCard
+                diet={resolved.diet}
+                disabled={disabled}
+                onChange={(diet) => onUpdateDayLog({ diet })}
+              />
             </TaskRow>
           )
         }

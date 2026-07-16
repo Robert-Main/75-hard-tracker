@@ -67,8 +67,14 @@ export function normalizeDayLog(log: Partial<DayLog> & Pick<DayLog, 'challengeId
     workout1: { ...base.workout1, ...log.workout1 },
     workout2: { ...base.workout2, ...log.workout2 },
     diet: Boolean(log.diet),
-    waterOz: typeof log.waterOz === 'number' ? log.waterOz : 0,
-    readingPages: typeof log.readingPages === 'number' ? log.readingPages : 0,
+    waterOz:
+      typeof log.waterOz === 'number' && Number.isFinite(log.waterOz)
+        ? Math.max(0, Math.round(log.waterOz))
+        : 0,
+    readingPages:
+      typeof log.readingPages === 'number' && Number.isFinite(log.readingPages)
+        ? Math.max(0, Math.min(500, Math.round(log.readingPages)))
+        : 0,
     readingTitle: log.readingTitle ?? '',
     hasPhoto: Boolean(log.hasPhoto),
     customTasks:

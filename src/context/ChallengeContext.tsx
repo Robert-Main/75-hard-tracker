@@ -160,13 +160,15 @@ function applyDayUpdater(
 
 export function ChallengeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
-  const [state, setState] = useState<AppState>(() => emptyState())
+  const [state, setState] = useState<AppState>(() => loadState())
   const [loading, setLoading] = useState(true)
   const [syncError, setSyncError] = useState<string | null>(null)
   const [failedDay, setFailedDay] = useState<number | null>(null)
   const today = toDateString()
   const autoFailHandled = useRef<string | null>(null)
   const hydratedForUser = useRef<string | null>(null)
+  const persistPending = useRef(new Map<string, DayLog>())
+  const persistInflight = useRef(new Map<string, Promise<void>>())
 
   useEffect(() => {
     if (!user) {
@@ -215,7 +217,7 @@ export function ChallengeProvider({ children }: { children: ReactNode }) {
           try {
             setState(await fetchAppState(user.id))
           } catch {
-            setState(emptyState())
+            setState(loadState())
           }
         }
       } finally {
@@ -229,8 +231,9 @@ export function ChallengeProvider({ children }: { children: ReactNode }) {
   }, [user])
 
   useEffect(() => {
+    if (loading) return
     saveState(state)
-  }, [state])
+  }, [state, loading])
 
   const currentDayIndex = useMemo(() => {
     if (!state.activeChallenge || state.activeChallenge.status !== 'active') {
@@ -295,10 +298,32 @@ export function ChallengeProvider({ children }: { children: ReactNode }) {
   const persistDayLog = useCallback(
     async (log: DayLog) => {
       if (!user) return
-      const photoPath = log.hasPhoto
-        ? getDayPhotoPath(user.id, log.challengeId, log.dayIndex)
-        : null
-      await upsertDayLog(log, user.id, photoPath)
+
+      const key = `${log.challengeId}:${log.dayIndex}`
+      persistPending.current.set(key, log)
+
+      const previous = persistInflight.current.get(key) ?? Promise.resolve()
+      const next = previous
+        .catch(() => undefined)
+        .then(async () => {
+          while (persistPending.current.has(key)) {
+            const latest = persistPending.current.get(key)
+            if (!latest) break
+            persistPending.current.delete(key)
+            const photoPath = latest.hasPhoto
+              ? getDayPhotoPath(user.id, latest.challengeId, latest.dayIndex)
+              : null
+            await upsertDayLog(latest, user.id, photoPath)
+          }
+        })
+        .finally(() => {
+          if (persistInflight.current.get(key) === next) {
+            persistInflight.current.delete(key)
+          }
+        })
+
+      persistInflight.current.set(key, next)
+      await next
     },
     [user],
   )
