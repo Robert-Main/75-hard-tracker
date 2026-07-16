@@ -142,9 +142,9 @@ export function TodayPage() {
   )
 
   return (
-    <section className="grid gap-[1.15rem] md:gap-6">
-      <header className="grid gap-[0.85rem] md:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.9fr)] md:items-stretch md:gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.85fr)]">
-        <div>
+    <section className="grid w-full gap-4 lg:gap-6">
+      <header className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.85fr)] lg:items-stretch">
+        <div className="min-w-0">
           <StreakHeader
             dayIndex={dayIndex}
             completedDays={completed}
@@ -154,11 +154,11 @@ export function TodayPage() {
             fillHeight
           />
         </div>
-        <div className="grid gap-[0.45rem] md:content-start md:gap-[0.65rem] md:rounded-2xl md:border md:border-line md:bg-panel md:p-4">
+        <div className="grid gap-[0.45rem] lg:content-start lg:gap-[0.65rem] lg:rounded-2xl lg:border lg:border-line lg:bg-panel lg:p-4">
           <DayOverview
             log={todayLog ?? undefined}
             taskSettings={state.taskSettings}
-            className="mb-0 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+            className="mb-0 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none"
           />
           <p
             className={cx(
@@ -179,7 +179,7 @@ export function TodayPage() {
         </div>
       </header>
 
-      <div>
+      <div className="min-w-0">
         <DayLogEditor
           challengeId={challenge.id}
           dayIndex={dayIndex}

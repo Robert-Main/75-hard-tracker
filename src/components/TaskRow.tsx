@@ -25,7 +25,7 @@ export function TaskRow({
   return (
     <article
       className={cx(
-        'overflow-hidden rounded-[0.9rem] border border-line bg-panel transition-[border-color,background,box-shadow] duration-180 min-[900px]:flex min-[900px]:h-full min-[900px]:flex-col',
+        'overflow-hidden rounded-[0.9rem] border border-line bg-panel transition-[border-color,background,box-shadow] duration-180 sm:flex sm:h-full sm:flex-col',
         done
           ? 'border-done/40 border-l-4 border-l-done shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--done)_12%,transparent)]'
           : 'border-l-4 border-l-line',
@@ -95,7 +95,7 @@ export function TaskRow({
           className={cx(
             'grid gap-3 border-t px-4 pb-4 pt-[0.85rem]',
             done ? 'border-t-done/25' : 'border-t-line',
-            'min-[900px]:flex-1',
+            'sm:flex-1',
           )}
         >
           {children}

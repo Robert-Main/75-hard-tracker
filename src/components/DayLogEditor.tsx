@@ -129,7 +129,7 @@ export function DayLogEditor({
   return (
     <div
       className={cx(
-        'grid gap-[0.9rem] [&>*]:min-w-0 min-[900px]:grid-cols-2 min-[900px]:items-stretch min-[900px]:gap-4 min-[1100px]:grid-cols-3 min-[1100px]:gap-[1.1rem]',
+        'grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:items-stretch sm:gap-4 lg:gap-4 xl:grid-cols-3 xl:gap-[1.1rem] [&>*]:min-w-0',
         disabled && 'opacity-[0.72]',
         className,
       )}
