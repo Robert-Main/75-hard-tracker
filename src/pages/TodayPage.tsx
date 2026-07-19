@@ -92,8 +92,9 @@ export function TodayPage() {
           Start your 75 days.
         </h1>
         <p className={cx(mutedText, 'max-w-[36ch] leading-normal')}>
-          Every day: 2 workouts (1 outdoor), diet, 1 gallon of water, 10 pages
-          of reading, and a progress photo. Miss anything and you start over.
+          Active days: 2 workouts (1 outdoor), diet, 1 gallon of water, 10 pages
+          of reading, and a progress photo. At least 5 days each week — more
+          than 2 rest days and you start over.
         </p>
         {last && (
           <p className={cx(mutedText, 'max-w-[36ch] text-[0.9rem] leading-normal')}>
@@ -173,8 +174,8 @@ export function TodayPage() {
                 : 'Keep going.'}
           </p>
           <p className="m-0 text-[0.82rem] leading-snug text-muted">
-            Miss logging before midnight and the day counts as failed when you
-            sign back in.
+            Skip logging before midnight and that day uses a weekly rest slot
+            (2 per week). A third incomplete day in the same week resets you.
           </p>
         </div>
       </header>

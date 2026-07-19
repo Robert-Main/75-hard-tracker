@@ -12,6 +12,7 @@ import {
   findDayLog,
   getCurrentDayIndex,
   getDayStatus,
+  isAllowedRestDay,
   isDayComplete,
 } from '../lib/challenge'
 import { getDayPhotoPath, getProgressPhotoUrl } from '../lib/cloud'
@@ -36,9 +37,30 @@ function resolveDayStatus(
   const endDate =
     challenge.failedAt ?? challenge.completedAt ?? challenge.startedAt
   const endIndex = getCurrentDayIndex(challenge.startedAt, endDate)
+  const lastEvaluated = Math.min(endIndex, CHALLENGE_DAYS)
 
-  if (day < endIndex) return 'missed'
-  if (day === endIndex && challenge.status === 'failed') return 'missed'
+  if (day < endIndex) {
+    return isAllowedRestDay(
+      challenge,
+      logs,
+      day,
+      lastEvaluated,
+      taskSettings,
+    )
+      ? 'rest'
+      : 'missed'
+  }
+  if (day === endIndex && challenge.status === 'failed') {
+    return isAllowedRestDay(
+      challenge,
+      logs,
+      day,
+      lastEvaluated,
+      taskSettings,
+    )
+      ? 'rest'
+      : 'missed'
+  }
   return 'upcoming'
 }
 
@@ -186,6 +208,10 @@ export function ProgressPage() {
             <span className="inline-flex items-center gap-[0.35rem]">
               <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-done not-italic" />{' '}
               Done
+            </span>
+            <span className="inline-flex items-center gap-[0.35rem]">
+              <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-[color-mix(in_srgb,var(--muted)_45%,var(--panel))] not-italic" />{' '}
+              Rest
             </span>
             <span className="inline-flex items-center gap-[0.35rem]">
               <i className="inline-block h-[0.7rem] w-[0.7rem] rounded-[0.2rem] bg-[color-mix(in_srgb,var(--danger)_55%,white)] not-italic" />{' '}

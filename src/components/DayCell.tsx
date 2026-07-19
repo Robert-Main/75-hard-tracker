@@ -11,6 +11,7 @@ const labels: Record<DayStatus, string> = {
   today: 'Today',
   complete: 'Complete',
   incomplete: 'Incomplete',
+  rest: 'Rest',
   missed: 'Missed',
 }
 
@@ -23,6 +24,8 @@ export function DayCell({ dayIndex, status }: DayCellProps) {
         status === 'today' &&
           'bg-accent text-on-accent shadow-[0_0_0_2px] shadow-accent/35 motion-safe:animate-pulse-today',
         status === 'complete' && 'bg-done text-on-done',
+        status === 'rest' &&
+          'border-line bg-[color-mix(in_srgb,var(--muted)_22%,var(--panel))] text-muted',
         (status === 'incomplete' || status === 'missed') &&
           'border-danger/35 bg-[color-mix(in_srgb,var(--danger)_18%,var(--panel))] text-danger',
       )}

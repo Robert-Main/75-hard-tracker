@@ -93,7 +93,13 @@ export interface AppState {
   taskSettings: TaskSettings
 }
 
-export type DayStatus = 'upcoming' | 'today' | 'complete' | 'incomplete' | 'missed'
+export type DayStatus =
+  | 'upcoming'
+  | 'today'
+  | 'complete'
+  | 'incomplete'
+  | 'rest'
+  | 'missed'
 
 export type DayTaskId =
   | 'workout1'

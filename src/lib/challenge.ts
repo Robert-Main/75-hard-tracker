@@ -19,6 +19,12 @@ import {
 
 export { WATER_GOAL_OZ, READING_GOAL_PAGES, WORKOUT_GOAL_MINS }
 export const CHALLENGE_DAYS = 75
+/** Challenge weeks are 7-day blocks from Day 1 (1–7, 8–14, …). */
+export const WEEK_LENGTH = 7
+/** Minimum completed days required in each full week. */
+export const MIN_COMPLETE_PER_WEEK = 5
+/** Rest days allowed per week (7 − 5). */
+export const MAX_REST_PER_WEEK = WEEK_LENGTH - MIN_COMPLETE_PER_WEEK
 
 function resolveGoals(settings?: TaskSettings) {
   const goals = settings?.goals ?? defaultTaskSettings().goals
@@ -219,6 +225,59 @@ export function findDayLog(
   )
 }
 
+export function getWeekBounds(dayIndex: number): {
+  weekStart: number
+  weekEnd: number
+  weekLength: number
+} {
+  const weekStart =
+    Math.floor((dayIndex - 1) / WEEK_LENGTH) * WEEK_LENGTH + 1
+  const weekEnd = Math.min(weekStart + WEEK_LENGTH - 1, CHALLENGE_DAYS)
+  return {
+    weekStart,
+    weekEnd,
+    weekLength: weekEnd - weekStart + 1,
+  }
+}
+
+/** Max incomplete days allowed in a week of the given length. */
+export function maxRestForWeekLength(weekLength: number): number {
+  const required = Math.min(MIN_COMPLETE_PER_WEEK, weekLength)
+  return weekLength - required
+}
+
+/**
+ * True when an incomplete past day is within that week's rest allowance
+ * (first N incomplete days in the week, where N = maxRestForWeekLength).
+ */
+export function isAllowedRestDay(
+  challenge: Challenge,
+  logs: DayLog[],
+  dayIndex: number,
+  lastEvaluatedDay: number,
+  settings?: TaskSettings,
+): boolean {
+  const log = findDayLog(logs, challenge.id, dayIndex)
+  if (isDayComplete(log, settings)) return false
+  if (dayIndex > lastEvaluatedDay) return false
+
+  const { weekStart, weekEnd, weekLength } = getWeekBounds(dayIndex)
+  const maxRest = maxRestForWeekLength(weekLength)
+  if (maxRest <= 0) return false
+
+  let incompleteBeforeOrAt = 0
+  const end = Math.min(weekEnd, lastEvaluatedDay)
+  for (let day = weekStart; day <= end; day += 1) {
+    const dayLog = findDayLog(logs, challenge.id, day)
+    if (isDayComplete(dayLog, settings)) continue
+    incompleteBeforeOrAt += 1
+    if (day === dayIndex) {
+      return incompleteBeforeOrAt <= maxRest
+    }
+  }
+  return false
+}
+
 export function getDayStatus(
   challenge: Challenge,
   logs: DayLog[],
@@ -236,11 +295,19 @@ export function getDayStatus(
 
   const log = findDayLog(logs, challenge.id, dayIndex)
   if (isDayComplete(log, settings)) return 'complete'
-  if (dayIndex < current) return 'missed'
+  if (dayIndex < current) {
+    const lastPastDay = Math.min(current - 1, CHALLENGE_DAYS)
+    return isAllowedRestDay(challenge, logs, dayIndex, lastPastDay, settings)
+      ? 'rest'
+      : 'missed'
+  }
   return 'incomplete'
 }
 
-/** Returns the first missed day index (past incomplete day), or null. */
+/**
+ * Returns the day that broke the weekly rule (3rd+ rest day in a week),
+ * or null if still within the 5-days-per-week requirement.
+ */
 export function findMissedDay(
   challenge: Challenge,
   logs: DayLog[],
@@ -255,10 +322,26 @@ export function findMissedDay(
   }
 
   const lastPastDay = Math.min(current - 1, CHALLENGE_DAYS)
+  if (lastPastDay < 1) return null
 
-  for (let day = 1; day <= lastPastDay; day += 1) {
-    const log = findDayLog(logs, challenge.id, day)
-    if (!isDayComplete(log, settings)) return day
+  for (
+    let weekStart = 1;
+    weekStart <= lastPastDay;
+    weekStart += WEEK_LENGTH
+  ) {
+    const { weekEnd, weekLength } = getWeekBounds(weekStart)
+    const maxRest = maxRestForWeekLength(weekLength)
+    const end = Math.min(weekEnd, lastPastDay)
+
+    const incompleteDays: number[] = []
+    for (let day = weekStart; day <= end; day += 1) {
+      const log = findDayLog(logs, challenge.id, day)
+      if (!isDayComplete(log, settings)) incompleteDays.push(day)
+    }
+
+    if (incompleteDays.length > maxRest) {
+      return incompleteDays[maxRest] ?? incompleteDays[0] ?? null
+    }
   }
 
   return null
@@ -285,9 +368,15 @@ export function checkCompletion(
   const current = getCurrentDayIndex(challenge.startedAt, today)
   if (current < CHALLENGE_DAYS) return challenge
 
-  for (let day = 1; day <= CHALLENGE_DAYS; day += 1) {
-    const log = findDayLog(logs, challenge.id, day)
-    if (!isDayComplete(log, settings)) return challenge
+  for (let weekStart = 1; weekStart <= CHALLENGE_DAYS; weekStart += WEEK_LENGTH) {
+    const { weekEnd, weekLength } = getWeekBounds(weekStart)
+    const required = Math.min(MIN_COMPLETE_PER_WEEK, weekLength)
+    let complete = 0
+    for (let day = weekStart; day <= weekEnd; day += 1) {
+      const log = findDayLog(logs, challenge.id, day)
+      if (isDayComplete(log, settings)) complete += 1
+    }
+    if (complete < required) return challenge
   }
 
   return {
